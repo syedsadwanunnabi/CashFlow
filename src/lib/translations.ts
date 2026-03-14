@@ -200,6 +200,10 @@ export const translations = {
     setBalance: "ব্যালেন্স সেট করুন",
     balanceDesc: "বর্তমান অ্যাকাউন্ট ব্যালেন্স রেকর্ড করুন",
     myWallets: "আমার ওয়ালেট",
+    edit: "সম্পাদনা",
+    delete: "মুছুন",
+    deleteConfirm: "আপনি কি নিশ্চিত?",
+    update: "আপডেট",
   },
 } as const;
 

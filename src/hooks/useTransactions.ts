@@ -225,5 +225,5 @@ export function useTransactions() {
   const daysInMonth = now.getDate() || 1;
   const burnRate = Math.round(monthlySpend / daysInMonth);
 
-  return { transactions, addTransaction, clearAllData, loadDemoData, totalBalance, monthlySpend, monthlyIncome, burnRate, loading };
+  return { transactions, addTransaction, updateTransaction, deleteTransaction, clearAllData, loadDemoData, totalBalance, monthlySpend, monthlyIncome, burnRate, loading };
 }

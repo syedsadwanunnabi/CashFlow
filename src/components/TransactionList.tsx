@@ -196,7 +196,7 @@ export default function TransactionList({ transactions, onUpdate, onDelete }: Pr
 
                 <div className="text-right">
                   <p className={`text-sm font-semibold flex items-center gap-1 ${
-                    tx.type === "balance" ? "text-accent-foreground" : tx.type === "received" ? "text-primary" : "text-foreground"
+                    tx.type === "balance" ? "text-primary" : tx.type === "received" ? "text-primary" : "text-foreground"
                   }`}>
                     {tx.type === "balance" ? <Wallet className="h-3 w-3" /> : tx.type === "received" ? <ArrowDownLeft className="h-3 w-3" /> : <ArrowUpRight className="h-3 w-3" />}
                     ৳{tx.amount.toLocaleString("en-BD")}

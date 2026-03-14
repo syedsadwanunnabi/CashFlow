@@ -101,6 +101,32 @@ export function useTransactions() {
     }
   };
 
+  const updateTransaction = useCallback(async (updated: Transaction) => {
+    setTransactions(prev =>
+      prev.map(t => t.id === updated.id ? updated : t)
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    );
+
+    if (user) {
+      await supabase.from("transactions").update({
+        amount: updated.amount,
+        type: updated.type,
+        bank: updated.bank,
+        category: updated.category,
+        description: updated.description,
+        date: updated.date,
+      }).eq("id", updated.id).eq("user_id", user.id);
+    }
+  }, [user]);
+
+  const deleteTransaction = useCallback(async (id: string) => {
+    setTransactions(prev => prev.filter(t => t.id !== id));
+
+    if (user) {
+      await supabase.from("transactions").delete().eq("id", id).eq("user_id", user.id);
+    }
+  }, [user]);
+
   const clearAllData = useCallback(async () => {
     if (user) {
       await supabase.from("transactions").delete().eq("user_id", user.id);

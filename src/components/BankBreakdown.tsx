@@ -10,10 +10,26 @@ export default function BankBreakdown({ transactions }: Props) {
 
   const bankData = Object.entries(BANKS).map(([id, bank]) => {
     const txns = transactions.filter(tx => tx.bank === id);
+    const sorted = [...txns].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     const spent = txns.filter(tx => tx.type === "sent").reduce((s, tx) => s + tx.amount, 0);
     const received = txns.filter(tx => tx.type === "received").reduce((s, tx) => s + tx.amount, 0);
-    const balance = received - spent;
-    return { id: id as BankId, bank, txCount: txns.length, spent, received, balance };
+    
+    // Find latest balance snapshot
+    const latestBal = sorted.filter(tx => tx.type === "balance").pop();
+    let balance: number;
+    if (latestBal) {
+      balance = latestBal.amount;
+      // Add transactions after the balance snapshot
+      for (const tx of sorted) {
+        if (tx.date > latestBal.date && tx.type !== "balance") {
+          balance += tx.type === "received" ? tx.amount : -tx.amount;
+        }
+      }
+    } else {
+      balance = received - spent;
+    }
+    
+    return { id: id as BankId, bank, txCount: txns.length, spent, received, balance, hasBalanceSnapshot: !!latestBal };
   }).filter(b => b.txCount > 0).sort((a, b) => b.balance - a.balance);
 
   if (bankData.length === 0) {

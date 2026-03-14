@@ -2,7 +2,7 @@ import { useApp } from "@/contexts/AppContext";
 import { BANKS, CATEGORIES, type Transaction } from "@/lib/data";
 import type { TranslationKey } from "@/lib/translations";
 import { useState } from "react";
-import { ArrowDownLeft, ArrowUpRight } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Wallet } from "lucide-react";
 
 interface Props { transactions: Transaction[] }
 
@@ -42,9 +42,9 @@ export default function TransactionList({ transactions }: Props) {
                 </div>
                 <div className="text-right">
                   <p className={`text-sm font-semibold flex items-center gap-1 ${
-                    tx.type === "received" ? "text-primary" : "text-foreground"
+                    tx.type === "balance" ? "text-accent-foreground" : tx.type === "received" ? "text-primary" : "text-foreground"
                   }`}>
-                    {tx.type === "received" ? <ArrowDownLeft className="h-3 w-3" /> : <ArrowUpRight className="h-3 w-3" />}
+                    {tx.type === "balance" ? <Wallet className="h-3 w-3" /> : tx.type === "received" ? <ArrowDownLeft className="h-3 w-3" /> : <ArrowUpRight className="h-3 w-3" />}
                     ৳{tx.amount.toLocaleString("en-BD")}
                   </p>
                   <p className="text-xs text-muted-foreground">

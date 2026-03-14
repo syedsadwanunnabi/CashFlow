@@ -2,95 +2,144 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
+  /* Midnight Blue (Default) */
+  :root,
+  .theme-midnight {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 93%;
+    --card: 217 33% 17%;
+    --card-foreground: 210 40% 93%;
+    --popover: 217 33% 17%;
+    --popover-foreground: 210 40% 93%;
+    --primary: 199 89% 60%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 217 33% 22%;
+    --secondary-foreground: 210 40% 93%;
+    --muted: 217 33% 20%;
+    --muted-foreground: 215 20% 55%;
+    --accent: 199 89% 60%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 24%;
+    --input: 217 33% 24%;
+    --ring: 199 89% 60%;
+    --radius: 0.75rem;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --sidebar-background: 222 47% 9%;
+    --sidebar-foreground: 210 40% 85%;
+    --sidebar-primary: 199 89% 60%;
+    --sidebar-primary-foreground: 222 47% 11%;
+    --sidebar-accent: 217 33% 17%;
+    --sidebar-accent-foreground: 210 40% 93%;
+    --sidebar-border: 217 33% 20%;
+    --sidebar-ring: 199 89% 60%;
 
-    --radius: 0.5rem;
+    /* Bank brand colors */
+    --bkash: 345 80% 47%;
+    --nagad: 28 92% 54%;
+    --citybank: 153 100% 26%;
+    --dbbl: 210 80% 40%;
+    --ebl: 15 70% 50%;
+    --brac: 200 60% 35%;
+    --rocket: 280 60% 45%;
+    --upay: 35 90% 50%;
 
-    --sidebar-background: 0 0% 98%;
+    /* AI insight accent */
+    --ai-accent: 263 70% 58%;
+    --ai-surface: 263 50% 20%;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    /* Chart colors */
+    --chart-1: 199 89% 60%;
+    --chart-2: 160 60% 50%;
+    --chart-3: 28 92% 54%;
+    --chart-4: 345 80% 47%;
+    --chart-5: 263 70% 58%;
 
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(199 89% 60%), hsl(210 80% 45%));
+    --gradient-surface: linear-gradient(180deg, hsl(217 33% 19%), hsl(217 33% 15%));
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
+  /* Emerald Theme */
+  .theme-emerald {
+    --background: 160 69% 15%;
+    --foreground: 152 60% 90%;
+    --card: 158 63% 18%;
+    --card-foreground: 152 60% 90%;
+    --popover: 158 63% 18%;
+    --popover-foreground: 152 60% 90%;
+    --primary: 160 64% 64%;
+    --primary-foreground: 160 69% 10%;
+    --secondary: 158 50% 22%;
+    --secondary-foreground: 152 60% 90%;
+    --muted: 158 40% 20%;
+    --muted-foreground: 155 20% 55%;
+    --accent: 160 64% 64%;
+    --accent-foreground: 160 69% 10%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
+    --border: 158 40% 25%;
+    --input: 158 40% 25%;
+    --ring: 160 64% 64%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 160 69% 12%;
+    --sidebar-foreground: 152 60% 80%;
+    --sidebar-primary: 160 64% 64%;
+    --sidebar-primary-foreground: 160 69% 10%;
+    --sidebar-accent: 158 63% 18%;
+    --sidebar-accent-foreground: 152 60% 90%;
+    --sidebar-border: 158 40% 22%;
+    --sidebar-ring: 160 64% 64%;
+
+    --ai-accent: 263 70% 58%;
+    --ai-surface: 263 50% 20%;
+    --chart-1: 160 64% 64%;
+    --chart-2: 199 89% 60%;
+    --chart-3: 28 92% 54%;
+    --chart-4: 345 80% 47%;
+    --chart-5: 263 70% 58%;
+  }
+
+  /* Amethyst Theme */
+  .theme-amethyst {
+    --background: 271 80% 20%;
+    --foreground: 270 40% 92%;
+    --card: 274 72% 30%;
+    --card-foreground: 270 40% 92%;
+    --popover: 274 72% 30%;
+    --popover-foreground: 270 40% 92%;
+    --primary: 263 70% 70%;
+    --primary-foreground: 271 80% 15%;
+    --secondary: 274 50% 35%;
+    --secondary-foreground: 270 40% 92%;
+    --muted: 274 45% 28%;
+    --muted-foreground: 270 20% 60%;
+    --accent: 263 70% 70%;
+    --accent-foreground: 271 80% 15%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 274 40% 35%;
+    --input: 274 40% 35%;
+    --ring: 263 70% 70%;
+
+    --sidebar-background: 271 80% 16%;
+    --sidebar-foreground: 270 40% 80%;
+    --sidebar-primary: 263 70% 70%;
+    --sidebar-primary-foreground: 271 80% 15%;
+    --sidebar-accent: 274 72% 30%;
+    --sidebar-accent-foreground: 270 40% 92%;
+    --sidebar-border: 274 40% 30%;
+    --sidebar-ring: 263 70% 70%;
+
+    --ai-accent: 199 89% 60%;
+    --ai-surface: 199 50% 20%;
+    --chart-1: 263 70% 70%;
+    --chart-2: 199 89% 60%;
+    --chart-3: 28 92% 54%;
+    --chart-4: 345 80% 47%;
+    --chart-5: 160 64% 64%;
   }
 }
 
@@ -98,8 +147,33 @@ All colors MUST be HSL.
   * {
     @apply border-border;
   }
-
   body {
     @apply bg-background text-foreground;
+    font-family: 'Hind Siliguri', sans-serif;
   }
+}
+
+/* Count-up animation for numbers */
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-count-up {
+  animation: countUp 0.4s ease-out forwards;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
 }

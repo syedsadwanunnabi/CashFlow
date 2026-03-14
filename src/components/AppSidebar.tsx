@@ -12,6 +12,7 @@ const tabs = [
   { id: "transactions", icon: ArrowLeftRight, key: "transactions" as const },
   { id: "banks", icon: Landmark, key: "bankAccounts" as const },
   { id: "categories", icon: FolderOpen, key: "categories" as const },
+  { id: "sms", icon: MessageSquareText, key: "smsParsing" as const },
   { id: "ai", icon: Sparkles, key: "aiInsights" as const },
   { id: "settings", icon: Settings, key: "settings" as const },
 ];

@@ -61,6 +61,12 @@ export default function Index() {
           <CategoryBreakdown transactions={transactions} />
         )}
 
+        {activeTab === "sms" && (
+          <div className="max-w-2xl">
+            <SmsParser onAdd={addTransaction} />
+          </div>
+        )}
+
         {activeTab === "ai" && (
           <div className="max-w-2xl">
             <AIInsights transactions={transactions} monthlySpend={monthlySpend} burnRate={burnRate} />

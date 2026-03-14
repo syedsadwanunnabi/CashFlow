@@ -2,7 +2,7 @@ import { useApp } from "@/contexts/AppContext";
 import { BANKS, CATEGORIES, type Transaction } from "@/lib/data";
 import type { TranslationKey } from "@/lib/translations";
 import { useState } from "react";
-import { ArrowDownLeft, ArrowUpRight } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Wallet } from "lucide-react";
 
 interface Props { transactions: Transaction[] }
 

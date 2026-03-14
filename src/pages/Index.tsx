@@ -15,7 +15,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export default function Index() {
   const [activeTab, setActiveTab] = useState("overview");
-  const { transactions, addTransaction, clearAllData, loadDemoData, totalBalance, monthlySpend, monthlyIncome, burnRate } = useTransactions();
+  const { transactions, addTransaction, updateTransaction, deleteTransaction, clearAllData, loadDemoData, totalBalance, monthlySpend, monthlyIncome, burnRate } = useTransactions();
   const { t } = useApp();
   const { user } = useAuth();
 

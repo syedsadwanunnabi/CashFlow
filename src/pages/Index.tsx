@@ -13,7 +13,7 @@ import { useApp } from "@/contexts/AppContext";
 
 export default function Index() {
   const [activeTab, setActiveTab] = useState("overview");
-  const { transactions, addTransaction, totalBalance, monthlySpend, monthlyIncome, burnRate } = useTransactions();
+  const { transactions, addTransaction, clearAllData, loadDemoData, totalBalance, monthlySpend, monthlyIncome, burnRate } = useTransactions();
   const { t } = useApp();
 
   const pageTitle: Record<string, string> = {
@@ -29,7 +29,8 @@ export default function Index() {
   return (
     <div className="flex min-h-screen bg-background">
       <AppSidebar activeTab={activeTab} onTabChange={setActiveTab} />
-      <main className="ml-60 flex-1 p-6 lg:p-8">
+      {/* Main content — offset for sidebar on desktop, top bar on mobile */}
+      <main className="flex-1 pt-14 md:pt-0 md:ml-60 p-4 sm:p-6 lg:p-8">
         <h1 className="mb-6 text-2xl font-bold text-foreground">{pageTitle[activeTab]}</h1>
 
         {activeTab === "overview" && (
@@ -73,7 +74,13 @@ export default function Index() {
           </div>
         )}
 
-        {activeTab === "settings" && <SettingsPage />}
+        {activeTab === "settings" && (
+          <SettingsPage
+            onClearData={clearAllData}
+            onLoadDemo={loadDemoData}
+            hasData={transactions.length > 0}
+          />
+        )}
       </main>
     </div>
   );

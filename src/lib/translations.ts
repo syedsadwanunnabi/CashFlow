@@ -111,6 +111,9 @@ export const translations = {
     balance: "Balance",
     showing: "Showing",
     of: "of",
+    exportCSV: "Export CSV",
+    exportPDF: "Export PDF",
+    export: "Export",
   },
   bn: {
     appName: "ক্যাশফ্লো",

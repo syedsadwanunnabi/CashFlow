@@ -45,6 +45,71 @@
   * {
     @apply border-border;
   }
+}
+
+/* Bank & MFS brand colors — persistent across themes */
+:root {
+  /* State-owned */
+  --bank-sonali: 45 80% 48%;
+  --bank-janata: 210 65% 40%;
+  --bank-agrani: 120 50% 35%;
+  --bank-rupali: 200 50% 45%;
+  /* Private Commercial */
+  --bank-brac: 200 60% 35%;
+  --bank-citybank: 153 100% 26%;
+  --bank-dbbl: 210 80% 40%;
+  --bank-ebl: 15 70% 50%;
+  --bank-prime: 220 60% 45%;
+  --bank-pubali: 180 55% 38%;
+  --bank-uttara: 35 65% 45%;
+  --bank-ific: 200 45% 42%;
+  --bank-dhaka: 340 55% 45%;
+  --bank-southeast: 195 65% 40%;
+  --bank-mtb: 170 50% 40%;
+  --bank-ab: 10 60% 48%;
+  --bank-asia: 215 55% 42%;
+  --bank-one: 280 45% 48%;
+  --bank-premier: 25 60% 45%;
+  --bank-trust: 185 55% 40%;
+  --bank-ucb: 220 50% 42%;
+  --bank-jamuna: 175 55% 42%;
+  --bank-mercantile: 230 50% 45%;
+  --bank-ncc: 140 50% 38%;
+  --bank-nrb: 350 55% 45%;
+  --bank-nrbc: 30 55% 45%;
+  --bank-sbac: 160 50% 40%;
+  --bank-midland: 250 45% 48%;
+  --bank-modhumoti: 100 50% 42%;
+  --bank-meghna: 195 50% 42%;
+  --bank-national: 0 55% 45%;
+  --bank-padma: 120 45% 42%;
+  --bank-shimanto: 80 50% 40%;
+  --bank-bengal: 45 55% 42%;
+  --bank-citizens: 300 40% 45%;
+  --bank-community: 150 45% 40%;
+  /* Islami */
+  --bank-islami: 145 60% 35%;
+  --bank-shahjalal: 170 55% 38%;
+  --bank-alarafah: 50 60% 42%;
+  --bank-standard: 220 45% 45%;
+  --bank-icbislamic: 190 50% 40%;
+  --bank-exim: 25 55% 45%;
+  /* Foreign */
+  --bank-scb: 160 70% 35%;
+  --bank-hsbc: 0 75% 45%;
+  --bank-citi: 210 85% 45%;
+  --bank-woori: 215 60% 42%;
+  /* Specialized */
+  --bank-grameen: 145 55% 40%;
+  --bank-krishi: 120 50% 38%;
+  /* MFS */
+  --mfs-bkash: 345 80% 47%;
+  --mfs-nagad: 28 92% 54%;
+  --mfs-rocket: 280 60% 45%;
+  --mfs-upay: 35 90% 50%;
+  --mfs-surecash: 200 65% 45%;
+  --mfs-mcash: 15 65% 50%;
+  --mfs-tap: 260 55% 50%;
   body {
     @apply bg-background text-foreground;
     font-family: 'Hind Siliguri', sans-serif;

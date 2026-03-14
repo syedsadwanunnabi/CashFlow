@@ -179,6 +179,17 @@ export const translations = {
     confirmClear: "নিশ্চিত করতে আবার ক্লিক করুন",
     clearWarning: "এটি আপনার সব লেনদেন স্থায়ীভাবে মুছে ফেলবে।",
     loadDemoData: "ডেমো ডেটা লোড করুন",
+    login: "লগ ইন",
+    signUp: "সাইন আপ",
+    email: "ইমেইল",
+    password: "পাসওয়ার্ড",
+    yourName: "আপনার নাম",
+    authSubtitle: "আপনার ব্যক্তিগত অর্থ সহায়ক",
+    checkEmail: "আপনার ইমেইল চেক করুন",
+    confirmEmailDesc: "আমরা একটি নিশ্চিতকরণ লিংক পাঠিয়েছি। অ্যাকাউন্ট যাচাই করতে আপনার ইনবক্স দেখুন।",
+    orContinueLocal: "লগ ইন না করলে ডেটা স্থানীয়ভাবে সংরক্ষিত হয়",
+    logOut: "লগ আউট",
+    loggedInAs: "লগ ইন করা আছে",
   },
 } as const;
 

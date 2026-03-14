@@ -97,6 +97,10 @@ export const translations = {
     setBalance: "Set Balance",
     balanceDesc: "Record current account balance",
     myWallets: "My Wallets",
+    edit: "Edit",
+    delete: "Delete",
+    deleteConfirm: "Are you sure?",
+    update: "Update",
   },
   bn: {
     appName: "ক্যাশফ্লো",

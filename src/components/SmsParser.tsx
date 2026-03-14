@@ -131,12 +131,18 @@ export default function SmsParser({ onAdd }: Props) {
   const [added, setAdded] = useState<Set<number>>(new Set());
 
   const handleParse = () => {
-    // Split by double newline or "---" to support multiple SMS
     const messages = smsText.split(/\n{2,}|---+/).filter(m => m.trim());
     const results: ParsedTransaction[] = [];
     for (const msg of messages) {
-      const result = parseSms(msg.trim());
-      if (result) results.push(result);
+      const parsed = parseSms(msg.trim());
+      // Adjust transferPairIndex to be global indices
+      const baseIdx = results.length;
+      for (const p of parsed) {
+        if (p.transferPairIndex !== undefined) {
+          p.transferPairIndex += baseIdx;
+        }
+        results.push(p);
+      }
     }
     setParsed(results);
     setAdded(new Set());

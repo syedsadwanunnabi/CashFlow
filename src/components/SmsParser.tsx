@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { BANKS, type Transaction, type BankId, type CategoryId } from "@/lib/data";
-import { MessageSquareText, Sparkles, Plus, X, CheckCircle2 } from "lucide-react";
+import { MessageSquareText, Sparkles, Plus, X, CheckCircle2, ArrowRightLeft } from "lucide-react";
 
 interface Props {
   onAdd: (txn: Transaction) => void;
@@ -13,6 +13,8 @@ interface ParsedTransaction {
   bank: BankId | null;
   description: string;
   date: string;
+  isTransfer?: boolean;
+  transferPairIndex?: number; // index of the paired transaction
 }
 
 // Bank keyword map for detection
@@ -44,10 +46,32 @@ const BANK_KEYWORDS: Record<string, BankId> = {
   "bank asia": "bank_asia",
 };
 
-function parseSms(sms: string): ParsedTransaction | null {
+function detectAllBanks(text: string): BankId[] {
+  const found: { bankId: BankId; index: number }[] = [];
+  for (const [keyword, bankId] of Object.entries(BANK_KEYWORDS)) {
+    const idx = text.indexOf(keyword);
+    if (idx !== -1 && !found.some(f => f.bankId === bankId)) {
+      found.push({ bankId, index: idx });
+    }
+  }
+  // Sort by position in text (first mentioned = source, second = destination)
+  found.sort((a, b) => a.index - b.index);
+  return found.map(f => f.bankId);
+}
+
+function isTransferSms(text: string): boolean {
+  const transferKeywords = [
+    "transfer", "transferred", "sent to", "send money",
+    "cash out", "cash in", "add money", "fund transfer",
+    "to your", "from your", "to account", "from account",
+  ];
+  return transferKeywords.some(kw => text.includes(kw));
+}
+
+function parseSms(sms: string): ParsedTransaction[] {
   const text = sms.toLowerCase();
 
-  // Extract amount — look for patterns like "tk 500", "bdt 1,200.50", "taka 300", "৳500"
+  // Extract amount
   const amountPatterns = [
     /(?:tk|bdt|taka|৳)\s*[.]?\s*([\d,]+(?:\.\d{1,2})?)/i,
     /([\d,]+(?:\.\d{1,2})?)\s*(?:tk|bdt|taka|৳)/i,
@@ -64,24 +88,7 @@ function parseSms(sms: string): ParsedTransaction | null {
     }
   }
 
-  if (amount <= 0) return null;
-
-  // Detect type
-  const receivedKeywords = ["received", "credited", "cash in", "deposited", "added", "refund", "salary", "cashback"];
-  const sentKeywords = ["sent", "debited", "cash out", "paid", "payment", "transferred", "withdrawn", "purchase", "charge"];
-
-  let type: "sent" | "received" = "sent";
-  if (receivedKeywords.some(kw => text.includes(kw))) type = "received";
-  if (sentKeywords.some(kw => text.includes(kw))) type = "sent";
-
-  // Detect bank
-  let bank: BankId | null = null;
-  for (const [keyword, bankId] of Object.entries(BANK_KEYWORDS)) {
-    if (text.includes(keyword)) {
-      bank = bankId;
-      break;
-    }
-  }
+  if (amount <= 0) return [];
 
   // Extract date if present, otherwise use today
   const dateMatch = sms.match(/(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{2,4})/);
@@ -92,10 +99,29 @@ function parseSms(sms: string): ParsedTransaction | null {
     date = new Date(`${year}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`).toISOString();
   }
 
-  // Build description from first ~60 chars
   const description = sms.trim().slice(0, 60).replace(/\n/g, " ");
 
-  return { amount, type, bank, description, date };
+  // Detect all banks mentioned
+  const banks = detectAllBanks(text);
+
+  // Check if this is a transfer between two accounts
+  if (banks.length >= 2 && isTransferSms(text)) {
+    const [sourceBank, destBank] = banks;
+    return [
+      { amount, type: "sent", bank: sourceBank, description, date, isTransfer: true, transferPairIndex: 1 },
+      { amount, type: "received", bank: destBank, description, date, isTransfer: true, transferPairIndex: 0 },
+    ];
+  }
+
+  // Single transaction fallback
+  const receivedKeywords = ["received", "credited", "cash in", "deposited", "added", "refund", "salary", "cashback"];
+  const sentKeywords = ["sent", "debited", "cash out", "paid", "payment", "transferred", "withdrawn", "purchase", "charge"];
+
+  let type: "sent" | "received" = "sent";
+  if (receivedKeywords.some(kw => text.includes(kw))) type = "received";
+  if (sentKeywords.some(kw => text.includes(kw))) type = "sent";
+
+  return [{ amount, type, bank: banks[0] || null, description, date }];
 }
 
 export default function SmsParser({ onAdd }: Props) {
@@ -105,29 +131,47 @@ export default function SmsParser({ onAdd }: Props) {
   const [added, setAdded] = useState<Set<number>>(new Set());
 
   const handleParse = () => {
-    // Split by double newline or "---" to support multiple SMS
     const messages = smsText.split(/\n{2,}|---+/).filter(m => m.trim());
     const results: ParsedTransaction[] = [];
     for (const msg of messages) {
-      const result = parseSms(msg.trim());
-      if (result) results.push(result);
+      const parsed = parseSms(msg.trim());
+      // Adjust transferPairIndex to be global indices
+      const baseIdx = results.length;
+      for (const p of parsed) {
+        if (p.transferPairIndex !== undefined) {
+          p.transferPairIndex += baseIdx;
+        }
+        results.push(p);
+      }
     }
     setParsed(results);
     setAdded(new Set());
   };
 
   const handleAddOne = (idx: number) => {
+    const indicesToAdd = [idx];
     const p = parsed[idx];
-    onAdd({
-      id: crypto.randomUUID(),
-      amount: p.amount,
-      type: p.type,
-      bank: p.bank || "bkash",
-      category: (p.type === "received" ? "salary" : "other") as CategoryId,
-      description: p.description,
-      date: p.date,
+    // If it's a transfer pair, add both
+    if (p.isTransfer && p.transferPairIndex !== undefined && !added.has(p.transferPairIndex)) {
+      indicesToAdd.push(p.transferPairIndex);
+    }
+    for (const i of indicesToAdd) {
+      const item = parsed[i];
+      onAdd({
+        id: crypto.randomUUID(),
+        amount: item.amount,
+        type: item.type,
+        bank: item.bank || "bkash",
+        category: (item.type === "received" ? "other" : "other") as CategoryId,
+        description: item.description,
+        date: item.date,
+      });
+    }
+    setAdded(prev => {
+      const next = new Set(prev);
+      indicesToAdd.forEach(i => next.add(i));
+      return next;
     });
-    setAdded(prev => new Set(prev).add(idx));
   };
 
   const handleAddAll = () => {
@@ -203,7 +247,15 @@ export default function SmsParser({ onAdd }: Props) {
                     {p.type === "received" ? "+" : "−"}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{p.description}</p>
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-sm font-medium text-foreground truncate">{p.description}</p>
+                      {p.isTransfer && (
+                        <span className="inline-flex items-center gap-0.5 rounded-full bg-accent px-1.5 py-0.5 text-[10px] font-medium text-accent-foreground shrink-0">
+                          <ArrowRightLeft className="h-2.5 w-2.5" />
+                          Transfer
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-muted-foreground">
                       {bankName} · {new Date(p.date).toLocaleDateString(lang === "bn" ? "bn-BD" : "en-GB", { day: "numeric", month: "short", year: "numeric" })}
                     </p>

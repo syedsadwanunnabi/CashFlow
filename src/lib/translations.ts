@@ -77,6 +77,12 @@ export const translations = {
     addAll: "Add All",
     clear: "Clear",
     smsParsing: "SMS Parsing",
+    dataManagement: "Data Management",
+    dataManagementDesc: "Your data is stored locally on this device. You can clear all data or load demo transactions.",
+    clearAllData: "Clear All Data",
+    confirmClear: "Click Again to Confirm",
+    clearWarning: "This will permanently delete all your transactions.",
+    loadDemoData: "Load Demo Data",
   },
   bn: {
     appName: "ক্যাশফ্লো",
@@ -156,6 +162,12 @@ export const translations = {
     addAll: "সব যোগ করুন",
     clear: "মুছুন",
     smsParsing: "এসএমএস পার্সিং",
+    dataManagement: "ডেটা ব্যবস্থাপনা",
+    dataManagementDesc: "আপনার ডেটা এই ডিভাইসে স্থানীয়ভাবে সংরক্ষিত। আপনি সব ডেটা মুছতে বা ডেমো ডেটা লোড করতে পারেন।",
+    clearAllData: "সব ডেটা মুছুন",
+    confirmClear: "নিশ্চিত করতে আবার ক্লিক করুন",
+    clearWarning: "এটি আপনার সব লেনদেন স্থায়ীভাবে মুছে ফেলবে।",
+    loadDemoData: "ডেমো ডেটা লোড করুন",
   },
 } as const;
 

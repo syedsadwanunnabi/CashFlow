@@ -8,6 +8,16 @@ const STORAGE_KEY = "cf-transactions";
 const DATA_VERSION_KEY = "cf-data-version";
 const CURRENT_VERSION = "4";
 
+const sortTransactionsChronologically = (items: Transaction[]) =>
+  items
+    .map((tx, index) => ({ tx, index }))
+    .sort((a, b) => {
+      const timeDiff = new Date(a.tx.date).getTime() - new Date(b.tx.date).getTime();
+      if (timeDiff !== 0) return timeDiff;
+      return b.index - a.index;
+    })
+    .map(({ tx }) => tx);
+
 export function useTransactions() {
   const { user } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -28,13 +38,14 @@ export function useTransactions() {
       .from("transactions")
       .select("*")
       .eq("user_id", user!.id)
-      .order("date", { ascending: false });
+      .order("date", { ascending: false })
+      .order("created_at", { ascending: false });
 
     if (!error && data) {
       setTransactions(data.map(row => ({
         id: row.id,
         amount: Number(row.amount),
-        type: row.type as "sent" | "received",
+        type: row.type as "sent" | "received" | "balance",
         bank: row.bank as BankId,
         category: row.category as CategoryId,
         description: row.description,
@@ -159,7 +170,7 @@ export function useTransactions() {
 
   // totalBalance: balance entries reset a bank's total, inflows/outflows adjust it
   const totalBalance = (() => {
-    const sorted = [...transactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const sorted = sortTransactionsChronologically(transactions);
     const bankTotals = new Map<string, number>();
     for (const tx of sorted) {
       if (tx.type === "balance") {

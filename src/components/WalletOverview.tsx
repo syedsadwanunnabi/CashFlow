@@ -9,9 +9,19 @@ interface Props {
   monthlySpend: number;
 }
 
+const sortTransactionsChronologically = (items: Transaction[]) =>
+  items
+    .map((tx, index) => ({ tx, index }))
+    .sort((a, b) => {
+      const timeDiff = new Date(a.tx.date).getTime() - new Date(b.tx.date).getTime();
+      if (timeDiff !== 0) return timeDiff;
+      return b.index - a.index;
+    })
+    .map(({ tx }) => tx);
+
 /** Compute per-bank balance: balance entries reset, inflows/outflows adjust */
 function computeBankBalances(transactions: Transaction[]) {
-  const sorted = [...transactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const sorted = sortTransactionsChronologically(transactions);
   const bankMap = new Map<BankId, { balance: number; txCount: number; bankName: string; bankNameBn: string; color: string }>();
 
   for (const tx of sorted) {

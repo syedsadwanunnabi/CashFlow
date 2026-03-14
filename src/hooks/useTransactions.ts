@@ -47,8 +47,8 @@ export function useTransactions() {
   const initializedRef = useRef(false);
   const userIdRef = useRef<string | null>(null);
 
-  // Fetch ALL transactions from cloud (no row limit)
-  const fetchAllFromCloud = useCallback(async (userId: string): Promise<Transaction[]> => {
+  // Fetch ALL transactions from cloud (no row limit) — not a hook, just a plain async function
+  const fetchAllFromCloud = async (userId: string): Promise<Transaction[]> => {
     const allRows: any[] = [];
     let from = 0;
     const pageSize = 1000;
@@ -73,7 +73,7 @@ export function useTransactions() {
     }
 
     return allRows.map(mapRowToTransaction);
-  }, []);
+  };
 
   // Single initialization effect — handles both login sync and loading
   useEffect(() => {

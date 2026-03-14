@@ -1,7 +1,7 @@
 export interface Transaction {
   id: string;
   amount: number;
-  type: "sent" | "received";
+  type: "sent" | "received" | "balance";
   bank: BankId;
   category: CategoryId;
   description: string;

@@ -1,7 +1,7 @@
 import { useApp } from "@/contexts/AppContext";
 import { BANKS, type Transaction, type BankId } from "@/lib/data";
 import { motion } from "framer-motion";
-import { TrendingDown, CalendarDays, Wallet, Plus } from "lucide-react";
+import { TrendingDown, CalendarDays, Wallet } from "lucide-react";
 
 interface Props {
   transactions: Transaction[];
@@ -9,21 +9,68 @@ interface Props {
   monthlySpend: number;
 }
 
+/** Compute per-bank balance using the latest "balance" snapshot + subsequent inflows/outflows */
+function computeBankBalances(transactions: Transaction[]) {
+  const sorted = [...transactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const bankMap = new Map<BankId, { balance: number; txCount: number; bankName: string; bankNameBn: string; color: string }>();
+
+  // First pass: find latest balance entry per bank
+  const latestBalanceDate = new Map<BankId, string>();
+  const latestBalanceAmount = new Map<BankId, number>();
+
+  for (const tx of sorted) {
+    if (tx.type === "balance") {
+      latestBalanceDate.set(tx.bank, tx.date);
+      latestBalanceAmount.set(tx.bank, tx.amount);
+    }
+  }
+
+  // Second pass: compute balance = latest balance snapshot + subsequent sent/received
+  for (const tx of sorted) {
+    const bank = BANKS[tx.bank];
+    if (!bank) continue;
+
+    if (!bankMap.has(tx.bank)) {
+      bankMap.set(tx.bank, { balance: 0, txCount: 0, bankName: bank.name, bankNameBn: bank.nameBn, color: bank.color });
+    }
+    const entry = bankMap.get(tx.bank)!;
+    entry.txCount++;
+
+    const balDate = latestBalanceDate.get(tx.bank);
+
+    if (tx.type === "balance") {
+      // If this is the latest balance entry, set it
+      if (tx.date === balDate) {
+        entry.balance = tx.amount;
+      }
+      // Earlier balance entries are ignored in calculation
+    } else if (balDate && tx.date > balDate) {
+      // Transaction after the latest balance snapshot
+      entry.balance += tx.type === "received" ? tx.amount : -tx.amount;
+    } else if (!balDate) {
+      // No balance snapshot — calculate from inflows/outflows
+      entry.balance += tx.type === "received" ? tx.amount : -tx.amount;
+    }
+  }
+
+  return Array.from(bankMap.entries())
+    .map(([id, data]) => ({ id, ...data }))
+    .filter(b => b.txCount > 0)
+    .sort((a, b) => b.balance - a.balance);
+}
+
 export default function WalletOverview({ transactions, totalBalance, monthlySpend }: Props) {
   const { t, lang } = useApp();
 
-  // Spent today
   const today = new Date().toISOString().slice(0, 10);
   const spentToday = transactions
     .filter(tx => tx.type === "sent" && tx.date.startsWith(today))
     .reduce((s, tx) => s + tx.amount, 0);
 
-  // Per-bank balances
-  const bankBalances = (Object.keys(BANKS) as BankId[]).map(id => {
-    const txns = transactions.filter(tx => tx.bank === id);
-    const balance = txns.reduce((s, tx) => s + (tx.type === "received" ? tx.amount : -tx.amount), 0);
-    return { id, bank: BANKS[id], balance, txCount: txns.length };
-  }).filter(b => b.txCount > 0).sort((a, b) => b.balance - a.balance);
+  const bankBalances = computeBankBalances(transactions);
+
+  // Use wallet-aware total: sum of per-bank computed balances
+  const walletTotal = bankBalances.reduce((s, b) => s + b.balance, 0);
 
   return (
     <div className="space-y-6">
@@ -36,10 +83,9 @@ export default function WalletOverview({ transactions, totalBalance, monthlySpen
       >
         <p className="text-sm text-muted-foreground mb-1">{t("totalBalance")}</p>
         <p className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground">
-          ৳{Math.abs(totalBalance).toLocaleString("en-BD", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+          ৳{Math.abs(walletTotal).toLocaleString("en-BD", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
         </p>
 
-        {/* Quick Stats Row */}
         <div className="mt-6 grid grid-cols-2 gap-4">
           <div className="rounded-xl bg-secondary/60 p-4">
             <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
@@ -58,42 +104,45 @@ export default function WalletOverview({ transactions, totalBalance, monthlySpen
         </div>
       </motion.div>
 
-      {/* Account Cards */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-foreground">{t("accounts")}</h3>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {bankBalances.map((b, i) => (
-            <motion.div
-              key={b.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.04, duration: 0.3 }}
-              className="rounded-xl border border-border bg-card p-4 hover:bg-secondary/30 transition-colors"
-            >
-              <div className="flex items-center gap-2.5 mb-3">
-                <div
-                  className="h-8 w-8 rounded-lg flex items-center justify-center text-xs font-bold"
-                  style={{
-                    backgroundColor: `hsl(var(${b.bank.color}) / 0.15)`,
-                    color: `hsl(var(${b.bank.color}))`,
-                  }}
-                >
-                  {b.bank.name.slice(0, 2).toUpperCase()}
+      {/* My Wallets / Accounts */}
+      {bankBalances.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <Wallet className="h-4 w-4 text-muted-foreground" />
+            <h3 className="text-sm font-semibold text-foreground">{t("myWallets")}</h3>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {bankBalances.map((b, i) => (
+              <motion.div
+                key={b.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.04, duration: 0.3 }}
+                className="rounded-xl border border-border bg-card p-4 hover:bg-secondary/30 transition-colors"
+              >
+                <div className="flex items-center gap-2.5 mb-3">
+                  <div
+                    className="h-8 w-8 rounded-lg flex items-center justify-center text-xs font-bold"
+                    style={{
+                      backgroundColor: `hsl(var(${b.color}) / 0.15)`,
+                      color: `hsl(var(${b.color}))`,
+                    }}
+                  >
+                    {b.bankName.slice(0, 2).toUpperCase()}
+                  </div>
+                  <span className="text-sm font-medium text-foreground">
+                    {lang === "bn" ? b.bankNameBn : b.bankName}
+                  </span>
                 </div>
-                <span className="text-sm font-medium text-foreground">
-                  {lang === "bn" ? b.bank.nameBn : b.bank.name}
-                </span>
-              </div>
-              <p className={`text-lg font-bold ${b.balance >= 0 ? "text-foreground" : "text-destructive"}`}>
-                ৳{b.balance.toLocaleString("en-BD", { maximumFractionDigits: 0 })}
-              </p>
-              <p className="text-xs text-muted-foreground mt-0.5">{b.txCount} {lang === "bn" ? "লেনদেন" : "transactions"}</p>
-            </motion.div>
-          ))}
+                <p className={`text-lg font-bold ${b.balance >= 0 ? "text-foreground" : "text-destructive"}`}>
+                  ৳{b.balance.toLocaleString("en-BD", { maximumFractionDigits: 0 })}
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">{b.txCount} {lang === "bn" ? "লেনদেন" : "transactions"}</p>
+              </motion.div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

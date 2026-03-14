@@ -193,6 +193,9 @@ export const translations = {
     orContinueLocal: "লগ ইন না করলে ডেটা স্থানীয়ভাবে সংরক্ষিত হয়",
     logOut: "লগ আউট",
     loggedInAs: "লগ ইন করা আছে",
+    setBalance: "ব্যালেন্স সেট করুন",
+    balanceDesc: "বর্তমান অ্যাকাউন্ট ব্যালেন্স রেকর্ড করুন",
+    myWallets: "আমার ওয়ালেট",
   },
 } as const;
 

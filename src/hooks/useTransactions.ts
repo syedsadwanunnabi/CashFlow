@@ -190,6 +190,7 @@ export function useTransactions() {
   const monthlySpend = thisMonthTxns.filter(t => t.type === "sent").reduce((s, t) => s + t.amount, 0);
   const monthlyIncome = thisMonthTxns.filter(t => t.type === "received").reduce((s, t) => s + t.amount, 0);
 
+
   const daysInMonth = now.getDate() || 1;
   const burnRate = Math.round(monthlySpend / daysInMonth);
 

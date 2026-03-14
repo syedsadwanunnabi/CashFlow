@@ -157,23 +157,17 @@ export function useTransactions() {
     }
   }, [user]);
 
-  // totalBalance: use balance snapshots where available, else inflow-outflow
+  // totalBalance: balance entries reset a bank's total, inflows/outflows adjust it
   const totalBalance = (() => {
     const sorted = [...transactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-    const latestBal = new Map<string, { amount: number; date: string }>();
-    for (const tx of sorted) {
-      if (tx.type === "balance") latestBal.set(tx.bank, { amount: tx.amount, date: tx.date });
-    }
     const bankTotals = new Map<string, number>();
     for (const tx of sorted) {
-      if (!bankTotals.has(tx.bank)) bankTotals.set(tx.bank, 0);
-      const bal = latestBal.get(tx.bank);
       if (tx.type === "balance") {
-        if (tx.date === bal?.date) bankTotals.set(tx.bank, tx.amount);
-      } else if (bal && tx.date > bal.date) {
-        bankTotals.set(tx.bank, bankTotals.get(tx.bank)! + (tx.type === "received" ? tx.amount : -tx.amount));
-      } else if (!bal) {
-        bankTotals.set(tx.bank, bankTotals.get(tx.bank)! + (tx.type === "received" ? tx.amount : -tx.amount));
+        bankTotals.set(tx.bank, tx.amount);
+      } else if (tx.type === "received") {
+        bankTotals.set(tx.bank, (bankTotals.get(tx.bank) || 0) + tx.amount);
+      } else {
+        bankTotals.set(tx.bank, (bankTotals.get(tx.bank) || 0) - tx.amount);
       }
     }
     let total = 0;

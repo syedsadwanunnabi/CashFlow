@@ -14,22 +14,15 @@ export default function BankBreakdown({ transactions }: Props) {
     const spent = txns.filter(tx => tx.type === "sent").reduce((s, tx) => s + tx.amount, 0);
     const received = txns.filter(tx => tx.type === "received").reduce((s, tx) => s + tx.amount, 0);
     
-    // Find latest balance snapshot
-    const latestBal = sorted.filter(tx => tx.type === "balance").pop();
-    let balance: number;
-    if (latestBal) {
-      balance = latestBal.amount;
-      // Add transactions after the balance snapshot
-      for (const tx of sorted) {
-        if (tx.date > latestBal.date && tx.type !== "balance") {
-          balance += tx.type === "received" ? tx.amount : -tx.amount;
-        }
-      }
-    } else {
-      balance = received - spent;
+    // Balance entries reset, inflows/outflows adjust
+    let balance = 0;
+    for (const tx of sorted) {
+      if (tx.type === "balance") balance = tx.amount;
+      else if (tx.type === "received") balance += tx.amount;
+      else balance -= tx.amount;
     }
     
-    return { id: id as BankId, bank, txCount: txns.length, spent, received, balance, hasBalanceSnapshot: !!latestBal };
+    return { id: id as BankId, bank, txCount: txns.length, spent, received, balance };
   }).filter(b => b.txCount > 0).sort((a, b) => b.balance - a.balance);
 
   if (bankData.length === 0) {

@@ -153,38 +153,38 @@ html.theme-emerald {
 }
 
 html.theme-amethyst {
-  --background: 271 80% 20%;
-  --foreground: 270 40% 92%;
-  --card: 274 72% 30%;
-  --card-foreground: 270 40% 92%;
-  --popover: 274 72% 30%;
-  --popover-foreground: 270 40% 92%;
-  --primary: 263 70% 70%;
-  --primary-foreground: 271 80% 15%;
-  --secondary: 274 50% 35%;
-  --secondary-foreground: 270 40% 92%;
-  --muted: 274 45% 28%;
-  --muted-foreground: 270 20% 60%;
-  --accent: 263 70% 70%;
-  --accent-foreground: 271 80% 15%;
-  --border: 274 40% 35%;
-  --input: 274 40% 35%;
-  --ring: 263 70% 70%;
-  --sidebar-background: 271 80% 16%;
-  --sidebar-foreground: 270 40% 80%;
-  --sidebar-primary: 263 70% 70%;
-  --sidebar-primary-foreground: 271 80% 15%;
-  --sidebar-accent: 274 72% 30%;
-  --sidebar-accent-foreground: 270 40% 92%;
-  --sidebar-border: 274 40% 30%;
-  --sidebar-ring: 263 70% 70%;
-  --ai-accent: 199 89% 60%;
-  --ai-surface: 199 50% 20%;
-  --chart-1: 263 70% 70%;
-  --chart-2: 199 89% 60%;
+  --background: 271 60% 8%;
+  --foreground: 270 30% 90%;
+  --card: 274 50% 12%;
+  --card-foreground: 270 30% 90%;
+  --popover: 274 50% 12%;
+  --popover-foreground: 270 30% 90%;
+  --primary: 263 60% 55%;
+  --primary-foreground: 271 60% 6%;
+  --secondary: 274 40% 16%;
+  --secondary-foreground: 270 30% 90%;
+  --muted: 274 35% 13%;
+  --muted-foreground: 270 18% 48%;
+  --accent: 263 60% 55%;
+  --accent-foreground: 271 60% 6%;
+  --border: 274 35% 18%;
+  --input: 274 35% 18%;
+  --ring: 263 60% 55%;
+  --sidebar-background: 271 60% 6%;
+  --sidebar-foreground: 270 30% 72%;
+  --sidebar-primary: 263 60% 55%;
+  --sidebar-primary-foreground: 271 60% 6%;
+  --sidebar-accent: 274 50% 12%;
+  --sidebar-accent-foreground: 270 30% 90%;
+  --sidebar-border: 274 35% 14%;
+  --sidebar-ring: 263 60% 55%;
+  --ai-accent: 199 89% 50%;
+  --ai-surface: 199 50% 15%;
+  --chart-1: 263 60% 55%;
+  --chart-2: 199 89% 50%;
   --chart-3: 28 92% 54%;
   --chart-4: 345 80% 47%;
-  --chart-5: 160 64% 64%;
+  --chart-5: 160 55% 45%;
 }
 
 html.theme-rosegold {

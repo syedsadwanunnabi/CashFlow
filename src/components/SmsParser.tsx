@@ -149,17 +149,29 @@ export default function SmsParser({ onAdd }: Props) {
   };
 
   const handleAddOne = (idx: number) => {
+    const indicesToAdd = [idx];
     const p = parsed[idx];
-    onAdd({
-      id: crypto.randomUUID(),
-      amount: p.amount,
-      type: p.type,
-      bank: p.bank || "bkash",
-      category: (p.type === "received" ? "salary" : "other") as CategoryId,
-      description: p.description,
-      date: p.date,
+    // If it's a transfer pair, add both
+    if (p.isTransfer && p.transferPairIndex !== undefined && !added.has(p.transferPairIndex)) {
+      indicesToAdd.push(p.transferPairIndex);
+    }
+    for (const i of indicesToAdd) {
+      const item = parsed[i];
+      onAdd({
+        id: crypto.randomUUID(),
+        amount: item.amount,
+        type: item.type,
+        bank: item.bank || "bkash",
+        category: (item.type === "received" ? "other" : "other") as CategoryId,
+        description: item.description,
+        date: item.date,
+      });
+    }
+    setAdded(prev => {
+      const next = new Set(prev);
+      indicesToAdd.forEach(i => next.add(i));
+      return next;
     });
-    setAdded(prev => new Set(prev).add(idx));
   };
 
   const handleAddAll = () => {

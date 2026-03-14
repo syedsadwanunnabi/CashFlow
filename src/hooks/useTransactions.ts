@@ -4,7 +4,7 @@ import { generateDemoTransactions, BANKS } from "@/lib/data";
 
 const STORAGE_KEY = "cf-transactions";
 const DATA_VERSION_KEY = "cf-data-version";
-const CURRENT_VERSION = "2"; // bump when bank IDs change
+const CURRENT_VERSION = "3"; // bump for income categories
 
 export function useTransactions() {
   const [transactions, setTransactions] = useState<Transaction[]>(() => {

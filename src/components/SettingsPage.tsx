@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useApp, type ThemeName } from "@/contexts/AppContext";
-import { Check, Moon, Languages, Trash2, Database, AlertTriangle } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Check, Moon, Languages, Trash2, Database, AlertTriangle, LogOut, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { TranslationKey } from "@/lib/translations";
 import { motion } from "framer-motion";
@@ -22,6 +23,7 @@ interface Props {
 
 export default function SettingsPage({ onClearData, onLoadDemo, hasData }: Props) {
   const { theme, setTheme, lang, setLang, t } = useApp();
+  const { user, signOut } = useAuth();
   const [confirmClear, setConfirmClear] = useState(false);
 
   const handleClear = () => {
@@ -35,10 +37,42 @@ export default function SettingsPage({ onClearData, onLoadDemo, hasData }: Props
 
   return (
     <div className="max-w-2xl space-y-6">
+      {/* Account */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="rounded-xl border border-border bg-card p-5 sm:p-6"
+      >
+        <div className="flex items-center gap-2 mb-5">
+          <User className="h-5 w-5 text-primary" />
+          <h2 className="text-base font-semibold text-foreground">
+            {lang === "bn" ? "অ্যাকাউন্ট" : "Account"}
+          </h2>
+        </div>
+        {user ? (
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-foreground font-medium">{user.email}</p>
+              <p className="text-xs text-muted-foreground">{t("loggedInAs")}</p>
+            </div>
+            <button
+              onClick={signOut}
+              className="flex items-center gap-2 rounded-lg bg-destructive/10 px-4 py-2 text-sm font-medium text-destructive hover:bg-destructive/20 transition-colors"
+            >
+              <LogOut className="h-4 w-4" />
+              {t("logOut")}
+            </button>
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">{t("orContinueLocal")}</p>
+        )}
+      </motion.div>
+
       {/* Appearance */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
         className="rounded-xl border border-border bg-card p-5 sm:p-6"
       >
         <div className="flex items-center gap-2 mb-5">
@@ -71,7 +105,7 @@ export default function SettingsPage({ onClearData, onLoadDemo, hasData }: Props
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.05 }}
+        transition={{ delay: 0.1 }}
         className="rounded-xl border border-border bg-card p-5 sm:p-6"
       >
         <div className="flex items-center gap-2 mb-5">
@@ -102,7 +136,7 @@ export default function SettingsPage({ onClearData, onLoadDemo, hasData }: Props
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
+        transition={{ delay: 0.15 }}
         className="rounded-xl border border-border bg-card p-5 sm:p-6"
       >
         <div className="flex items-center gap-2 mb-5">

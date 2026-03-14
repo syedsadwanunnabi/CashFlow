@@ -61,7 +61,7 @@ export default function Index() {
         )}
 
         {activeTab === "transactions" && (
-          <TransactionsPage transactions={transactions} onAdd={addTransaction} />
+          <TransactionsPage transactions={transactions} onAdd={addTransaction} onUpdate={updateTransaction} onDelete={deleteTransaction} />
         )}
 
         {activeTab === "banks" && (

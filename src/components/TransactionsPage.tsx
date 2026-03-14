@@ -6,15 +6,17 @@ import TransactionList from "@/components/TransactionList";
 interface Props {
   transactions: Transaction[];
   onAdd: (txn: Transaction) => void;
+  onUpdate: (txn: Transaction) => void;
+  onDelete: (id: string) => void;
 }
 
-export default function TransactionsPage({ transactions, onAdd }: Props) {
+export default function TransactionsPage({ transactions, onAdd, onUpdate, onDelete }: Props) {
   const { t } = useApp();
 
   return (
     <div className="space-y-5">
       <AddTransaction onAdd={onAdd} />
-      <TransactionList transactions={transactions} />
+      <TransactionList transactions={transactions} onUpdate={onUpdate} onDelete={onDelete} />
     </div>
   );
 }

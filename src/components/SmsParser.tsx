@@ -13,6 +13,8 @@ interface ParsedTransaction {
   bank: BankId | null;
   description: string;
   date: string;
+  isTransfer?: boolean;
+  transferPairIndex?: number; // index of the paired transaction
 }
 
 // Bank keyword map for detection

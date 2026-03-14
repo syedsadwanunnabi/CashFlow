@@ -157,7 +157,29 @@ export function useTransactions() {
     }
   }, [user]);
 
-  const totalBalance = transactions.reduce((sum, t) => sum + (t.type === "received" ? t.amount : -t.amount), 0);
+  // totalBalance: use balance snapshots where available, else inflow-outflow
+  const totalBalance = (() => {
+    const sorted = [...transactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const latestBal = new Map<string, { amount: number; date: string }>();
+    for (const tx of sorted) {
+      if (tx.type === "balance") latestBal.set(tx.bank, { amount: tx.amount, date: tx.date });
+    }
+    const bankTotals = new Map<string, number>();
+    for (const tx of sorted) {
+      if (!bankTotals.has(tx.bank)) bankTotals.set(tx.bank, 0);
+      const bal = latestBal.get(tx.bank);
+      if (tx.type === "balance") {
+        if (tx.date === bal?.date) bankTotals.set(tx.bank, tx.amount);
+      } else if (bal && tx.date > bal.date) {
+        bankTotals.set(tx.bank, bankTotals.get(tx.bank)! + (tx.type === "received" ? tx.amount : -tx.amount));
+      } else if (!bal) {
+        bankTotals.set(tx.bank, bankTotals.get(tx.bank)! + (tx.type === "received" ? tx.amount : -tx.amount));
+      }
+    }
+    let total = 0;
+    bankTotals.forEach(v => total += v);
+    return total;
+  })();
 
   const now = new Date();
   const thisMonthTxns = transactions.filter(t => {

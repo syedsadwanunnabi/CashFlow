@@ -15,7 +15,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export default function Index() {
   const [activeTab, setActiveTab] = useState("overview");
-  const { transactions, addTransaction, clearAllData, loadDemoData, totalBalance, monthlySpend, monthlyIncome, burnRate } = useTransactions();
+  const { transactions, addTransaction, updateTransaction, deleteTransaction, clearAllData, loadDemoData, totalBalance, monthlySpend, monthlyIncome, burnRate } = useTransactions();
   const { t } = useApp();
   const { user } = useAuth();
 
@@ -61,7 +61,7 @@ export default function Index() {
         )}
 
         {activeTab === "transactions" && (
-          <TransactionsPage transactions={transactions} onAdd={addTransaction} />
+          <TransactionsPage transactions={transactions} onAdd={addTransaction} onUpdate={updateTransaction} onDelete={deleteTransaction} />
         )}
 
         {activeTab === "banks" && (

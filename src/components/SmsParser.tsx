@@ -247,7 +247,15 @@ export default function SmsParser({ onAdd }: Props) {
                     {p.type === "received" ? "+" : "−"}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{p.description}</p>
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-sm font-medium text-foreground truncate">{p.description}</p>
+                      {p.isTransfer && (
+                        <span className="inline-flex items-center gap-0.5 rounded-full bg-accent px-1.5 py-0.5 text-[10px] font-medium text-accent-foreground shrink-0">
+                          <ArrowRightLeft className="h-2.5 w-2.5" />
+                          Transfer
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-muted-foreground">
                       {bankName} · {new Date(p.date).toLocaleDateString(lang === "bn" ? "bn-BD" : "en-GB", { day: "numeric", month: "short", year: "numeric" })}
                     </p>

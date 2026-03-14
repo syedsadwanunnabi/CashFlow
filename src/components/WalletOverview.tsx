@@ -9,23 +9,11 @@ interface Props {
   monthlySpend: number;
 }
 
-/** Compute per-bank balance using the latest "balance" snapshot + subsequent inflows/outflows */
+/** Compute per-bank balance: balance entries reset, inflows/outflows adjust */
 function computeBankBalances(transactions: Transaction[]) {
   const sorted = [...transactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   const bankMap = new Map<BankId, { balance: number; txCount: number; bankName: string; bankNameBn: string; color: string }>();
 
-  // First pass: find latest balance entry per bank
-  const latestBalanceDate = new Map<BankId, string>();
-  const latestBalanceAmount = new Map<BankId, number>();
-
-  for (const tx of sorted) {
-    if (tx.type === "balance") {
-      latestBalanceDate.set(tx.bank, tx.date);
-      latestBalanceAmount.set(tx.bank, tx.amount);
-    }
-  }
-
-  // Second pass: compute balance = latest balance snapshot + subsequent sent/received
   for (const tx of sorted) {
     const bank = BANKS[tx.bank];
     if (!bank) continue;
@@ -36,20 +24,12 @@ function computeBankBalances(transactions: Transaction[]) {
     const entry = bankMap.get(tx.bank)!;
     entry.txCount++;
 
-    const balDate = latestBalanceDate.get(tx.bank);
-
     if (tx.type === "balance") {
-      // If this is the latest balance entry, set it
-      if (tx.date === balDate) {
-        entry.balance = tx.amount;
-      }
-      // Earlier balance entries are ignored in calculation
-    } else if (balDate && tx.date > balDate) {
-      // Transaction after the latest balance snapshot
-      entry.balance += tx.type === "received" ? tx.amount : -tx.amount;
-    } else if (!balDate) {
-      // No balance snapshot — calculate from inflows/outflows
-      entry.balance += tx.type === "received" ? tx.amount : -tx.amount;
+      entry.balance = tx.amount;
+    } else if (tx.type === "received") {
+      entry.balance += tx.amount;
+    } else {
+      entry.balance -= tx.amount;
     }
   }
 

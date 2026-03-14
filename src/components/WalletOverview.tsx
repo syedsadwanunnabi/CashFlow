@@ -35,7 +35,7 @@ export default function WalletOverview({ transactions, totalBalance, monthlySpen
         className="rounded-2xl border border-border bg-card p-6 sm:p-8"
       >
         <p className="text-sm text-muted-foreground mb-1">{t("totalBalance")}</p>
-        <p className={`text-4xl sm:text-5xl font-bold tracking-tight ${totalBalance >= 0 ? "text-primary" : "text-destructive"}`}>
+        <p className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground">
           ৳{Math.abs(totalBalance).toLocaleString("en-BD", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
         </p>
 

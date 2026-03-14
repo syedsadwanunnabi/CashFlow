@@ -108,6 +108,9 @@ export const BANK_GROUPS = {
   specialized: { label: "Specialized Banks", labelBn: "বিশেষায়িত ব্যাংক", ids: ["grameen", "krishi"] as BankId[] },
 };
 
+export const EXPENSE_CATEGORIES: CategoryId[] = ["food", "transport", "shopping", "bills", "entertainment", "health", "education", "other"];
+export const INCOME_CATEGORIES: CategoryId[] = ["salary", "freelance", "investment", "gift", "refund", "rental", "other"];
+
 export const CATEGORIES: Record<CategoryId, { icon: string }> = {
   food: { icon: "🍔" },
   transport: { icon: "🚌" },
@@ -117,6 +120,12 @@ export const CATEGORIES: Record<CategoryId, { icon: string }> = {
   health: { icon: "💊" },
   education: { icon: "📚" },
   other: { icon: "📦" },
+  salary: { icon: "💰" },
+  freelance: { icon: "💻" },
+  investment: { icon: "📈" },
+  gift: { icon: "🎁" },
+  refund: { icon: "🔄" },
+  rental: { icon: "🏠" },
 };
 
 // Generate demo data using common banks

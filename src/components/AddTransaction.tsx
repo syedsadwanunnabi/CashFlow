@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
-import { BANKS, BANK_GROUPS, CATEGORIES, type Transaction, type BankId, type CategoryId } from "@/lib/data";
+import { BANKS, BANK_GROUPS, CATEGORIES, EXPENSE_CATEGORIES, INCOME_CATEGORIES, type Transaction, type BankId, type CategoryId } from "@/lib/data";
 import type { TranslationKey } from "@/lib/translations";
-import { Plus, X } from "lucide-react";
+import { Plus, X, ArrowUpRight, ArrowDownLeft } from "lucide-react";
 
 interface Props { onAdd: (txn: Transaction) => void }
 
@@ -17,6 +17,15 @@ export default function AddTransaction({ onAdd }: Props) {
     description: "",
     date: new Date().toISOString().slice(0, 10),
   });
+
+  const availableCategories = form.type === "received" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+
+  // Reset category when switching type if current isn't in the new list
+  const handleTypeChange = (type: "sent" | "received") => {
+    const cats = type === "received" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+    const newCat = cats.includes(form.category) ? form.category : cats[0];
+    setForm(p => ({ ...p, type, category: newCat }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,12 +64,37 @@ export default function AddTransaction({ onAdd }: Props) {
           <X className="h-4 w-4" />
         </button>
       </div>
+
+      {/* Type toggle */}
+      <div className="flex gap-2 mb-4">
+        <button
+          type="button"
+          onClick={() => handleTypeChange("sent")}
+          className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium transition-all ${
+            form.type === "sent"
+              ? "bg-destructive/15 text-destructive border border-destructive/30"
+              : "bg-secondary text-muted-foreground border border-border hover:text-foreground"
+          }`}
+        >
+          <ArrowUpRight className="h-4 w-4" />
+          {t("outflow")}
+        </button>
+        <button
+          type="button"
+          onClick={() => handleTypeChange("received")}
+          className={`flex-1 flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium transition-all ${
+            form.type === "received"
+              ? "bg-primary/15 text-primary border border-primary/30"
+              : "bg-secondary text-muted-foreground border border-border hover:text-foreground"
+          }`}
+        >
+          <ArrowDownLeft className="h-4 w-4" />
+          {t("inflow")}
+        </button>
+      </div>
+
       <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-3">
         <input type="number" placeholder={t("amount")} value={form.amount} onChange={e => setForm(p => ({ ...p, amount: e.target.value }))} className={`col-span-2 ${inputClass}`} required />
-        <select value={form.type} onChange={e => setForm(p => ({ ...p, type: e.target.value as "sent" | "received" }))} className={inputClass}>
-          <option value="sent">{t("sent")}</option>
-          <option value="received">{t("received")}</option>
-        </select>
         <input type="date" value={form.date} onChange={e => setForm(p => ({ ...p, date: e.target.value }))} className={inputClass} />
         <select value={form.bank} onChange={e => setForm(p => ({ ...p, bank: e.target.value as BankId }))} className={inputClass}>
           {Object.entries(BANK_GROUPS).map(([key, group]) => (
@@ -71,8 +105,8 @@ export default function AddTransaction({ onAdd }: Props) {
             </optgroup>
           ))}
         </select>
-        <select value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value as CategoryId }))} className={inputClass}>
-          {(Object.keys(CATEGORIES) as CategoryId[]).map(id => (
+        <select value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value as CategoryId }))} className={`col-span-2 ${inputClass}`}>
+          {availableCategories.map(id => (
             <option key={id} value={id}>{CATEGORIES[id].icon} {t(id as TranslationKey)}</option>
           ))}
         </select>

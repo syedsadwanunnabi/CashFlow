@@ -1,5 +1,5 @@
 import { useApp, type ThemeName } from "@/contexts/AppContext";
-import { LayoutDashboard, ArrowLeftRight, Sparkles, Settings, FolderOpen, Landmark } from "lucide-react";
+import { LayoutDashboard, ArrowLeftRight, Sparkles, Settings, FolderOpen, Landmark, MessageSquareText } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SidebarProps {

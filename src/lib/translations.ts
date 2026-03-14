@@ -227,6 +227,9 @@ export const translations = {
     balance: "ব্যালেন্স",
     showing: "দেখাচ্ছে",
     of: "এর মধ্যে",
+    exportCSV: "CSV ডাউনলোড",
+    exportPDF: "PDF ডাউনলোড",
+    export: "এক্সপোর্ট",
   },
 } as const;
 

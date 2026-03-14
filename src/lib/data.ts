@@ -131,8 +131,9 @@ export const CATEGORIES: Record<CategoryId, { icon: string }> = {
 // Generate demo data using common banks
 export function generateDemoTransactions(): Transaction[] {
   const demoBanks: BankId[] = ["bkash", "nagad", "rocket", "citybank", "dbbl", "ebl", "brac", "upay", "sonali", "islami", "standard_chartered", "prime"];
-  const categories: CategoryId[] = ["food", "transport", "shopping", "bills", "entertainment", "health", "education", "other"];
-  const descriptions: Record<CategoryId, string[]> = {
+  const expenseCategories: CategoryId[] = ["food", "transport", "shopping", "bills", "entertainment", "health", "education", "other"];
+  const incomeCategories: CategoryId[] = ["salary", "freelance", "investment", "gift", "refund", "rental"];
+  const descriptions: Partial<Record<CategoryId, string[]>> = {
     food: ["Foodpanda Order", "Pathao Food", "Local Restaurant", "Tea Stall", "HungryNaki"],
     transport: ["Uber Ride", "Pathao Ride", "CNG Auto", "Bus Fare", "Obhai Ride"],
     shopping: ["Daraz Order", "Aarong", "New Market", "Bashundhara City", "Chaldal Grocery"],
@@ -141,16 +142,25 @@ export function generateDemoTransactions(): Transaction[] {
     health: ["Pharmacy", "Doctor Visit", "Lab Test", "Medicine"],
     education: ["Udemy Course", "Book Purchase", "Coaching Fee", "Exam Fee"],
     other: ["ATM Withdrawal", "Transfer", "Donation", "Miscellaneous"],
+    salary: ["Monthly Salary", "Bonus Payment"],
+    freelance: ["Upwork Payment", "Fiverr Gig", "Client Payment"],
+    investment: ["Stock Dividend", "Savings Interest"],
+    gift: ["Eid Gift", "Birthday Gift"],
+    refund: ["Order Refund", "Cashback"],
+    rental: ["Room Rent", "Shop Rent"],
   };
 
   const txns: Transaction[] = [];
   for (let i = 0; i < 80; i++) {
-    const cat = categories[Math.floor(Math.random() * categories.length)];
-    const bank = demoBanks[Math.floor(Math.random() * demoBanks.length)];
     const isReceived = Math.random() > 0.75;
+    const cat = isReceived
+      ? incomeCategories[Math.floor(Math.random() * incomeCategories.length)]
+      : expenseCategories[Math.floor(Math.random() * expenseCategories.length)];
+    const bank = demoBanks[Math.floor(Math.random() * demoBanks.length)];
     const day = Math.floor(Math.random() * 28) + 1;
     const month = Math.random() > 0.4 ? 2 : 1;
-    const desc = descriptions[cat][Math.floor(Math.random() * descriptions[cat].length)];
+    const catDescs = descriptions[cat] || ["Transaction"];
+    const desc = catDescs[Math.floor(Math.random() * catDescs.length)];
     txns.push({
       id: crypto.randomUUID(),
       amount: Math.round((Math.random() * 4500 + 50) * 100) / 100,

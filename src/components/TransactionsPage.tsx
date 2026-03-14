@@ -1,10 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { BANKS, BANK_GROUPS, CATEGORIES, EXPENSE_CATEGORIES, INCOME_CATEGORIES, type Transaction, type BankId, type CategoryId } from "@/lib/data";
 import type { TranslationKey } from "@/lib/translations";
 import AddTransaction from "@/components/AddTransaction";
 import TransactionList from "@/components/TransactionList";
-import { Search, Filter, X } from "lucide-react";
+import { Search, Filter, X, Download, FileText, FileSpreadsheet } from "lucide-react";
 
 interface Props {
   transactions: Transaction[];

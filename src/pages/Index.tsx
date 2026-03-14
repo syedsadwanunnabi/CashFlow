@@ -7,6 +7,7 @@ import CategoryBreakdown from "@/components/CategoryBreakdown";
 import TransactionsPage from "@/components/TransactionsPage";
 import AIInsights from "@/components/AIInsights";
 import SettingsPage from "@/components/SettingsPage";
+import SmsParser from "@/components/SmsParser";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useApp } from "@/contexts/AppContext";
 
@@ -20,6 +21,7 @@ export default function Index() {
     transactions: t("transactions"),
     banks: t("bankAccounts"),
     categories: t("categories"),
+    sms: t("smsParsing"),
     ai: t("aiInsights"),
     settings: t("settings"),
   };
@@ -57,6 +59,12 @@ export default function Index() {
 
         {activeTab === "categories" && (
           <CategoryBreakdown transactions={transactions} />
+        )}
+
+        {activeTab === "sms" && (
+          <div className="max-w-2xl">
+            <SmsParser onAdd={addTransaction} />
+          </div>
         )}
 
         {activeTab === "ai" && (

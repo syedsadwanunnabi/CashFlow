@@ -1,5 +1,5 @@
 import { useApp, type ThemeName } from "@/contexts/AppContext";
-import { LayoutDashboard, ArrowLeftRight, Sparkles, Settings, FolderOpen, Landmark } from "lucide-react";
+import { LayoutDashboard, ArrowLeftRight, Sparkles, Settings, FolderOpen, Landmark, MessageSquareText } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SidebarProps {
@@ -12,6 +12,7 @@ const tabs = [
   { id: "transactions", icon: ArrowLeftRight, key: "transactions" as const },
   { id: "banks", icon: Landmark, key: "bankAccounts" as const },
   { id: "categories", icon: FolderOpen, key: "categories" as const },
+  { id: "sms", icon: MessageSquareText, key: "smsParsing" as const },
   { id: "ai", icon: Sparkles, key: "aiInsights" as const },
   { id: "settings", icon: Settings, key: "settings" as const },
 ];

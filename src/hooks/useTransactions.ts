@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { Transaction, BankId, CategoryId } from "@/lib/data";
-import { generateDemoTransactions, BANKS } from "@/lib/data";
+import { BANKS } from "@/lib/data";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const STORAGE_KEY = "cf-transactions";
 const DATA_VERSION_KEY = "cf-data-version";
@@ -18,40 +19,106 @@ const sortTransactionsChronologically = (items: Transaction[]) =>
     })
     .map(({ tx }) => tx);
 
+const mapRowToTransaction = (row: any): Transaction => ({
+  id: row.id,
+  amount: Number(row.amount),
+  type: row.type as "sent" | "received" | "balance",
+  bank: row.bank as BankId,
+  category: row.category as CategoryId,
+  description: row.description,
+  date: row.date,
+});
+
+const txnToRow = (txn: Transaction, userId: string) => ({
+  id: txn.id,
+  user_id: userId,
+  amount: txn.amount,
+  type: txn.type,
+  bank: txn.bank,
+  category: txn.category,
+  description: txn.description,
+  date: txn.date,
+});
+
 export function useTransactions() {
   const { user } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const initializedRef = useRef(false);
+  const userIdRef = useRef<string | null>(null);
 
-  // Load transactions: from cloud if logged in, else localStorage
+  // Fetch ALL transactions from cloud (no row limit)
+  const fetchAllFromCloud = useCallback(async (userId: string): Promise<Transaction[]> => {
+    const allRows: any[] = [];
+    let from = 0;
+    const pageSize = 1000;
+
+    while (true) {
+      const { data, error } = await supabase
+        .from("transactions")
+        .select("*")
+        .eq("user_id", userId)
+        .order("date", { ascending: false })
+        .order("created_at", { ascending: false })
+        .range(from, from + pageSize - 1);
+
+      if (error) {
+        console.error("Failed to fetch transactions:", error);
+        break;
+      }
+      if (!data || data.length === 0) break;
+      allRows.push(...data);
+      if (data.length < pageSize) break;
+      from += pageSize;
+    }
+
+    return allRows.map(mapRowToTransaction);
+  }, []);
+
+  // Single initialization effect — handles both login sync and loading
   useEffect(() => {
-    if (user) {
-      loadFromCloud();
+    const userId = user?.id ?? null;
+
+    // Skip if same user already initialized
+    if (userId === userIdRef.current && initializedRef.current) return;
+    userIdRef.current = userId;
+    initializedRef.current = true;
+
+    if (userId) {
+      initCloud(userId);
     } else {
       loadFromLocal();
     }
   }, [user]);
 
-  const loadFromCloud = async () => {
+  const initCloud = async (userId: string) => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("transactions")
-      .select("*")
-      .eq("user_id", user!.id)
-      .order("date", { ascending: false })
-      .order("created_at", { ascending: false });
 
-    if (!error && data) {
-      setTransactions(data.map(row => ({
-        id: row.id,
-        amount: Number(row.amount),
-        type: row.type as "sent" | "received" | "balance",
-        bank: row.bank as BankId,
-        category: row.category as CategoryId,
-        description: row.description,
-        date: row.date,
-      })));
+    // Step 1: Check if there's local data to sync
+    const localStored = localStorage.getItem(STORAGE_KEY);
+    let localTxns: Transaction[] = [];
+    if (localStored) {
+      try {
+        const parsed = JSON.parse(localStored) as Transaction[];
+        if (parsed.length > 0 && parsed.every(t => t.bank in BANKS)) {
+          localTxns = parsed;
+        }
+      } catch { /* ignore */ }
     }
+
+    // Step 2: If local data exists, upsert to cloud FIRST
+    if (localTxns.length > 0) {
+      const rows = localTxns.map(txn => txnToRow(txn, userId));
+      const { error } = await supabase.from("transactions").upsert(rows, { onConflict: "id" });
+      if (!error) {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(DATA_VERSION_KEY);
+      }
+    }
+
+    // Step 3: Then load everything from cloud (single source of truth)
+    const cloudTxns = await fetchAllFromCloud(userId);
+    setTransactions(cloudTxns);
     setLoading(false);
   };
 
@@ -62,8 +129,7 @@ export function useTransactions() {
       if (stored) {
         try {
           const parsed = JSON.parse(stored) as Transaction[];
-          const valid = parsed.every(t => t.bank in BANKS);
-          if (valid) {
+          if (parsed.every(t => t.bank in BANKS)) {
             setTransactions(parsed);
             setLoading(false);
             return;
@@ -84,31 +150,35 @@ export function useTransactions() {
     }
   }, [transactions, user, loading]);
 
-  const addTransaction = async (txn: Transaction) => {
-    setTransactions(prev => [txn, ...prev].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
-
-    if (user) {
-      await supabase.from("transactions").insert({
-        id: txn.id,
-        user_id: user.id,
-        amount: txn.amount,
-        type: txn.type,
-        bank: txn.bank,
-        category: txn.category,
-        description: txn.description,
-        date: txn.date,
-      });
-    }
-  };
-
-  const updateTransaction = useCallback(async (updated: Transaction) => {
+  const addTransaction = useCallback(async (txn: Transaction) => {
+    // Optimistic update
     setTransactions(prev =>
-      prev.map(t => t.id === updated.id ? updated : t)
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      [txn, ...prev].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     );
 
     if (user) {
-      await supabase.from("transactions").update({
+      const { error } = await supabase.from("transactions").insert(txnToRow(txn, user.id));
+      if (error) {
+        // Rollback on failure
+        setTransactions(prev => prev.filter(t => t.id !== txn.id));
+        toast.error("Failed to save transaction");
+        console.error("Insert error:", error);
+      }
+    }
+  }, [user]);
+
+  const updateTransaction = useCallback(async (updated: Transaction) => {
+    setTransactions(prev => {
+      const old = prev.find(t => t.id === updated.id);
+      // Store old for potential rollback
+      if (old) (updated as any).__prev = old;
+      return prev
+        .map(t => t.id === updated.id ? updated : t)
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    });
+
+    if (user) {
+      const { error } = await supabase.from("transactions").update({
         amount: updated.amount,
         type: updated.type,
         bank: updated.bank,
@@ -116,20 +186,48 @@ export function useTransactions() {
         description: updated.description,
         date: updated.date,
       }).eq("id", updated.id).eq("user_id", user.id);
+
+      if (error) {
+        // Rollback
+        const prev = (updated as any).__prev;
+        if (prev) {
+          setTransactions(txns => txns.map(t => t.id === updated.id ? prev : t));
+        }
+        toast.error("Failed to update transaction");
+        console.error("Update error:", error);
+      }
     }
   }, [user]);
 
   const deleteTransaction = useCallback(async (id: string) => {
-    setTransactions(prev => prev.filter(t => t.id !== id));
+    let removed: Transaction | undefined;
+    setTransactions(prev => {
+      removed = prev.find(t => t.id === id);
+      return prev.filter(t => t.id !== id);
+    });
 
     if (user) {
-      await supabase.from("transactions").delete().eq("id", id).eq("user_id", user.id);
+      const { error } = await supabase.from("transactions").delete().eq("id", id).eq("user_id", user.id);
+      if (error) {
+        // Rollback
+        if (removed) {
+          setTransactions(prev =>
+            [...prev, removed!].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+          );
+        }
+        toast.error("Failed to delete transaction");
+        console.error("Delete error:", error);
+      }
     }
   }, [user]);
 
   const clearAllData = useCallback(async () => {
     if (user) {
-      await supabase.from("transactions").delete().eq("user_id", user.id);
+      const { error } = await supabase.from("transactions").delete().eq("user_id", user.id);
+      if (error) {
+        toast.error("Failed to clear data");
+        return;
+      }
     }
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(DATA_VERSION_KEY);
@@ -137,64 +235,28 @@ export function useTransactions() {
   }, [user]);
 
   const loadDemoData = useCallback(async () => {
+    const { generateDemoTransactions } = await import("@/lib/data");
     const demo = generateDemoTransactions();
-    setTransactions(demo);
 
     if (user) {
-      // Insert demo data to cloud
-      const rows = demo.map(txn => ({
-        id: txn.id,
-        user_id: user.id,
-        amount: txn.amount,
-        type: txn.type,
-        bank: txn.bank,
-        category: txn.category,
-        description: txn.description,
-        date: txn.date,
-      }));
-      await supabase.from("transactions").insert(rows);
+      // Clear existing first, then insert demo
+      await supabase.from("transactions").delete().eq("user_id", user.id);
+      const rows = demo.map(txn => txnToRow(txn, user.id));
+      const { error } = await supabase.from("transactions").insert(rows);
+      if (error) {
+        toast.error("Failed to load demo data");
+        console.error("Demo insert error:", error);
+        return;
+      }
     } else {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(demo));
       localStorage.setItem(DATA_VERSION_KEY, CURRENT_VERSION);
     }
+    setTransactions(demo);
   }, [user]);
 
-  // Sync local data to cloud on first login
-  const syncLocalToCloud = useCallback(async () => {
-    if (!user) return;
-    const localStored = localStorage.getItem(STORAGE_KEY);
-    if (!localStored) return;
-    try {
-      const localTxns = JSON.parse(localStored) as Transaction[];
-      if (localTxns.length === 0) return;
+  // ─── Derived values ───
 
-      const rows = localTxns.map(txn => ({
-        id: txn.id,
-        user_id: user.id,
-        amount: txn.amount,
-        type: txn.type,
-        bank: txn.bank,
-        category: txn.category,
-        description: txn.description,
-        date: txn.date,
-      }));
-      await supabase.from("transactions").upsert(rows, { onConflict: "id" });
-      // Clear local after sync
-      localStorage.removeItem(STORAGE_KEY);
-      localStorage.removeItem(DATA_VERSION_KEY);
-      // Reload from cloud
-      await loadFromCloud();
-    } catch { /* ignore */ }
-  }, [user]);
-
-  // Trigger sync when user logs in
-  useEffect(() => {
-    if (user) {
-      syncLocalToCloud();
-    }
-  }, [user]);
-
-  // totalBalance: balance entries reset a bank's total, inflows/outflows adjust it
   const totalBalance = (() => {
     const sorted = sortTransactionsChronologically(transactions);
     const bankTotals = new Map<string, number>();
@@ -220,7 +282,6 @@ export function useTransactions() {
 
   const monthlySpend = thisMonthTxns.filter(t => t.type === "sent").reduce((s, t) => s + t.amount, 0);
   const monthlyIncome = thisMonthTxns.filter(t => t.type === "received").reduce((s, t) => s + t.amount, 0);
-
 
   const daysInMonth = now.getDate() || 1;
   const burnRate = Math.round(monthlySpend / daysInMonth);

@@ -8,7 +8,7 @@ export interface Transaction {
   date: string;
 }
 
-export type CategoryId = "food" | "transport" | "shopping" | "bills" | "entertainment" | "health" | "education" | "other";
+export type CategoryId = "food" | "transport" | "shopping" | "bills" | "entertainment" | "health" | "education" | "other" | "salary" | "freelance" | "investment" | "gift" | "refund" | "rental";
 
 // All major Bangladeshi banks + MFS providers
 export type BankId =

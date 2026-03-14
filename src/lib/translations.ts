@@ -214,6 +214,16 @@ export const translations = {
     delete: "মুছুন",
     deleteConfirm: "আপনি কি নিশ্চিত?",
     update: "আপডেট",
+    searchTransactions: "লেনদেন খুঁজুন...",
+    allTypes: "সব ধরন",
+    allBanks: "সব ব্যাংক",
+    allCategories: "সব বিভাগ",
+    dateFrom: "থেকে",
+    dateTo: "পর্যন্ত",
+    clearFilters: "ফিল্টার মুছুন",
+    balance: "ব্যালেন্স",
+    showing: "দেখাচ্ছে",
+    of: "এর মধ্যে",
   },
 } as const;
 

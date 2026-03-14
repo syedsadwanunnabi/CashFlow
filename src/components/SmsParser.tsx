@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { BANKS, type Transaction, type BankId, type CategoryId } from "@/lib/data";
-import { MessageSquareText, Sparkles, Plus, X, CheckCircle2 } from "lucide-react";
+import { MessageSquareText, Sparkles, Plus, X, CheckCircle2, ArrowRightLeft } from "lucide-react";
 
 interface Props {
   onAdd: (txn: Transaction) => void;

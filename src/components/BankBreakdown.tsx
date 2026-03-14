@@ -40,7 +40,7 @@ export default function BankBreakdown({ transactions }: Props) {
                 animate={{ width: `${(b.spent / maxSpent) * 100}%` }}
                 transition={{ delay: i * 0.04 + 0.1, duration: 0.5 }}
                 className="h-full rounded-full"
-                style={{ backgroundColor: `hsl(${b.bank.color})` }}
+                style={{ backgroundColor: `hsl(var(${b.bank.color}))` }}
               />
             </div>
           </motion.div>

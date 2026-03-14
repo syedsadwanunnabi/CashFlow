@@ -12,14 +12,14 @@ export type BankId = "bkash" | "nagad" | "citybank" | "dbbl" | "ebl" | "brac" | 
 export type CategoryId = "food" | "transport" | "shopping" | "bills" | "entertainment" | "health" | "education" | "other";
 
 export const BANKS: Record<BankId, { name: string; nameBn: string; color: string }> = {
-  bkash: { name: "bKash", nameBn: "বিকাশ", color: "var(--bkash)" },
-  nagad: { name: "Nagad", nameBn: "নগদ", color: "var(--nagad)" },
-  citybank: { name: "City Bank", nameBn: "সিটি ব্যাংক", color: "var(--citybank)" },
-  dbbl: { name: "DBBL", nameBn: "ডিবিবিএল", color: "var(--dbbl)" },
-  ebl: { name: "EBL", nameBn: "ইবিএল", color: "var(--ebl)" },
-  brac: { name: "BRAC Bank", nameBn: "ব্র্যাক ব্যাংক", color: "var(--brac)" },
-  rocket: { name: "Rocket", nameBn: "রকেট", color: "var(--rocket)" },
-  upay: { name: "Upay", nameBn: "উপায়", color: "var(--upay)" },
+  bkash: { name: "bKash", nameBn: "বিকাশ", color: "--bkash" },
+  nagad: { name: "Nagad", nameBn: "নগদ", color: "--nagad" },
+  citybank: { name: "City Bank", nameBn: "সিটি ব্যাংক", color: "--citybank" },
+  dbbl: { name: "DBBL", nameBn: "ডিবিবিএল", color: "--dbbl" },
+  ebl: { name: "EBL", nameBn: "ইবিএল", color: "--ebl" },
+  brac: { name: "BRAC Bank", nameBn: "ব্র্যাক ব্যাংক", color: "--brac" },
+  rocket: { name: "Rocket", nameBn: "রকেট", color: "--rocket" },
+  upay: { name: "Upay", nameBn: "উপায়", color: "--upay" },
 };
 
 export const CATEGORIES: Record<CategoryId, { icon: string }> = {

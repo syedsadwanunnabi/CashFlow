@@ -94,6 +94,9 @@ export const translations = {
     orContinueLocal: "Data is saved locally when not logged in",
     logOut: "Log Out",
     loggedInAs: "Logged in as",
+    setBalance: "Set Balance",
+    balanceDesc: "Record current account balance",
+    myWallets: "My Wallets",
   },
   bn: {
     appName: "ক্যাশফ্লো",

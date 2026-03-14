@@ -93,9 +93,7 @@ export default function AppSidebar({ activeTab, onTabChange }: SidebarProps) {
           <Menu className="h-5 w-5" />
         </button>
         <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary">
-            <span className="text-sm font-bold text-primary-foreground leading-none">৳</span>
-          </div>
+          <img src="/favicon.png" alt="CashFlow" className="h-7 w-7 rounded-lg" />
           <span className="text-sm font-bold text-foreground">{t("appName")}</span>
         </div>
       </div>

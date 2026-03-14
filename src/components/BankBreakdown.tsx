@@ -5,12 +5,22 @@ import { ArrowUpRight, ArrowDownLeft } from "lucide-react";
 
 interface Props { transactions: Transaction[] }
 
+const sortTransactionsChronologically = (items: Transaction[]) =>
+  items
+    .map((tx, index) => ({ tx, index }))
+    .sort((a, b) => {
+      const timeDiff = new Date(a.tx.date).getTime() - new Date(b.tx.date).getTime();
+      if (timeDiff !== 0) return timeDiff;
+      return b.index - a.index;
+    })
+    .map(({ tx }) => tx);
+
 export default function BankBreakdown({ transactions }: Props) {
   const { t, lang } = useApp();
 
   const bankData = Object.entries(BANKS).map(([id, bank]) => {
     const txns = transactions.filter(tx => tx.bank === id);
-    const sorted = [...txns].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const sorted = sortTransactionsChronologically(txns);
     const spent = txns.filter(tx => tx.type === "sent").reduce((s, tx) => s + tx.amount, 0);
     const received = txns.filter(tx => tx.type === "received").reduce((s, tx) => s + tx.amount, 0);
     

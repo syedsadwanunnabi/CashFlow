@@ -170,7 +170,7 @@ export function useTransactions() {
 
   // totalBalance: balance entries reset a bank's total, inflows/outflows adjust it
   const totalBalance = (() => {
-    const sorted = [...transactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const sorted = sortTransactionsChronologically(transactions);
     const bankTotals = new Map<string, number>();
     for (const tx of sorted) {
       if (tx.type === "balance") {

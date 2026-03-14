@@ -1,10 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { BANKS, BANK_GROUPS, CATEGORIES, EXPENSE_CATEGORIES, INCOME_CATEGORIES, type Transaction, type BankId, type CategoryId } from "@/lib/data";
 import type { TranslationKey } from "@/lib/translations";
 import AddTransaction from "@/components/AddTransaction";
 import TransactionList from "@/components/TransactionList";
-import { Search, Filter, X } from "lucide-react";
+import { Search, Filter, X, Download, FileText, FileSpreadsheet } from "lucide-react";
 
 interface Props {
   transactions: Transaction[];
@@ -83,11 +83,93 @@ export default function TransactionsPage({ transactions, onAdd, onUpdate, onDele
     });
   }, [transactions, search, typeFilter, bankFilter, categoryFilter, dateFrom, dateTo]);
 
+  const exportCSV = useCallback(() => {
+    const headers = ["Date", "Type", "Amount", "Bank", "Category", "Description"];
+    const rows = filtered.map(tx => [
+      new Date(tx.date).toISOString().slice(0, 10),
+      tx.type,
+      tx.amount.toString(),
+      BANKS[tx.bank]?.name || tx.bank,
+      CATEGORIES[tx.category]?.icon + " " + tx.category,
+      `"${tx.description.replace(/"/g, '""')}"`,
+    ]);
+    const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `cashflow-transactions-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [filtered]);
+
+  const exportPDF = useCallback(async () => {
+    const { default: jsPDF } = await import("jspdf");
+    const { default: autoTable } = await import("jspdf-autotable");
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text("CashFlow - Transactions", 14, 18);
+    doc.setFontSize(9);
+    doc.setTextColor(120);
+    doc.text(`Exported: ${new Date().toLocaleDateString()} | ${filtered.length} transactions`, 14, 25);
+
+    autoTable(doc, {
+      startY: 30,
+      head: [["Date", "Type", "Amount (৳)", "Bank", "Category", "Description"]],
+      body: filtered.map(tx => [
+        new Date(tx.date).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
+        tx.type === "sent" ? "Outflow" : tx.type === "received" ? "Inflow" : "Balance",
+        tx.amount.toLocaleString("en-BD"),
+        BANKS[tx.bank]?.name || tx.bank,
+        tx.category,
+        tx.description,
+      ]),
+      styles: { fontSize: 8, cellPadding: 2 },
+      headStyles: { fillColor: [30, 58, 95], textColor: 255, fontStyle: "bold" },
+      alternateRowStyles: { fillColor: [240, 245, 250] },
+    });
+
+    doc.save(`cashflow-transactions-${new Date().toISOString().slice(0, 10)}.pdf`);
+  }, [filtered]);
+
+  const [showExport, setShowExport] = useState(false);
+
   const selectClass = "rounded-lg bg-secondary border border-border px-2.5 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary";
 
   return (
     <div className="space-y-4">
-      <AddTransaction onAdd={onAdd} />
+      <div className="flex items-center gap-2">
+        <div className="flex-1"><AddTransaction onAdd={onAdd} /></div>
+        {filtered.length > 0 && (
+          <div className="relative">
+            <button
+              onClick={() => setShowExport(!showExport)}
+              className="flex items-center gap-1.5 rounded-lg border border-border bg-secondary px-3 py-2.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Download className="h-3.5 w-3.5" />
+              {t("export")}
+            </button>
+            {showExport && (
+              <div className="absolute right-0 top-full mt-1 z-10 rounded-lg border border-border bg-card shadow-lg p-1 min-w-[140px]">
+                <button
+                  onClick={() => { exportCSV(); setShowExport(false); }}
+                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-xs text-foreground hover:bg-secondary transition-colors"
+                >
+                  <FileSpreadsheet className="h-3.5 w-3.5 text-primary" />
+                  {t("exportCSV")}
+                </button>
+                <button
+                  onClick={() => { exportPDF(); setShowExport(false); }}
+                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-xs text-foreground hover:bg-secondary transition-colors"
+                >
+                  <FileText className="h-3.5 w-3.5 text-destructive" />
+                  {t("exportPDF")}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* Search & Filter Bar */}
       <div className="space-y-3">

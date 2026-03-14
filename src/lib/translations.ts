@@ -111,6 +111,9 @@ export const translations = {
     balance: "Balance",
     showing: "Showing",
     of: "of",
+    exportCSV: "Export CSV",
+    exportPDF: "Export PDF",
+    export: "Export",
   },
   bn: {
     appName: "ক্যাশফ্লো",
@@ -224,6 +227,9 @@ export const translations = {
     balance: "ব্যালেন্স",
     showing: "দেখাচ্ছে",
     of: "এর মধ্যে",
+    exportCSV: "CSV ডাউনলোড",
+    exportPDF: "PDF ডাউনলোড",
+    export: "এক্সপোর্ট",
   },
 } as const;
 

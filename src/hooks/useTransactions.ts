@@ -4,7 +4,7 @@ import { generateDemoTransactions, BANKS } from "@/lib/data";
 
 const STORAGE_KEY = "cf-transactions";
 const DATA_VERSION_KEY = "cf-data-version";
-const CURRENT_VERSION = "3";
+const CURRENT_VERSION = "4";
 
 export function useTransactions() {
   const [transactions, setTransactions] = useState<Transaction[]>(() => {
@@ -19,10 +19,10 @@ export function useTransactions() {
         } catch { /* fallback */ }
       }
     }
-    const demo = generateDemoTransactions();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(demo));
+    // Start empty — no demo data by default
+    localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
     localStorage.setItem(DATA_VERSION_KEY, CURRENT_VERSION);
-    return demo;
+    return [];
   });
 
   useEffect(() => {

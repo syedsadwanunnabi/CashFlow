@@ -1,5 +1,6 @@
 import { useApp } from "@/contexts/AppContext";
-import { LayoutDashboard, ArrowLeftRight, Sparkles, Settings, FolderOpen, Landmark, MessageSquareText, Menu, X } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { LayoutDashboard, ArrowLeftRight, Sparkles, Settings, FolderOpen, Landmark, MessageSquareText, Menu, X, LogIn, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 
@@ -20,14 +21,10 @@ const tabs = [
 
 export default function AppSidebar({ activeTab, onTabChange }: SidebarProps) {
   const { t } = useApp();
+  const { user } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Close on route change
-  useEffect(() => {
-    setMobileOpen(false);
-  }, [activeTab]);
-
-  // Close on resize to desktop
+  useEffect(() => { setMobileOpen(false); }, [activeTab]);
   useEffect(() => {
     const handler = () => { if (window.innerWidth >= 768) setMobileOpen(false); };
     window.addEventListener("resize", handler);
@@ -36,7 +33,6 @@ export default function AppSidebar({ activeTab, onTabChange }: SidebarProps) {
 
   const sidebarContent = (
     <>
-      {/* Logo */}
       <div className="flex items-center justify-between px-5 py-6">
         <div className="flex items-center gap-2.5">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary">
@@ -49,7 +45,6 @@ export default function AppSidebar({ activeTab, onTabChange }: SidebarProps) {
         </button>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 px-3 space-y-0.5">
         {tabs.map(tab => (
           <button
@@ -68,16 +63,33 @@ export default function AppSidebar({ activeTab, onTabChange }: SidebarProps) {
         ))}
       </nav>
 
-      {/* Footer */}
-      <div className="border-t border-sidebar-border px-5 py-4">
-        <p className="text-[10px] text-muted-foreground tracking-wide uppercase">CashFlow v1.0</p>
+      {/* User / Auth footer */}
+      <div className="border-t border-sidebar-border px-4 py-3">
+        {user ? (
+          <div className="flex items-center gap-2.5">
+            <div className="h-7 w-7 rounded-full bg-primary/15 flex items-center justify-center">
+              <User className="h-3.5 w-3.5 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-foreground truncate">{user.email}</p>
+              <p className="text-[10px] text-muted-foreground">☁️ Cloud sync</p>
+            </div>
+          </div>
+        ) : (
+          <button
+            onClick={() => onTabChange("login")}
+            className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <LogIn className="h-4 w-4" />
+            <span className="text-xs">{t("login")} / {t("signUp")}</span>
+          </button>
+        )}
       </div>
     </>
   );
 
   return (
     <>
-      {/* Mobile header bar */}
       <div className="fixed top-0 left-0 right-0 z-50 flex items-center gap-3 bg-sidebar border-b border-sidebar-border px-4 py-3 md:hidden">
         <button onClick={() => setMobileOpen(true)} className="text-foreground">
           <Menu className="h-5 w-5" />
@@ -90,12 +102,10 @@ export default function AppSidebar({ activeTab, onTabChange }: SidebarProps) {
         </div>
       </div>
 
-      {/* Mobile overlay */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 bg-black/50 md:hidden" onClick={() => setMobileOpen(false)} />
       )}
 
-      {/* Sidebar */}
       <aside className={cn(
         "fixed left-0 top-0 z-50 flex h-full w-60 flex-col bg-sidebar border-r border-sidebar-border transition-transform duration-200",
         "md:translate-x-0",

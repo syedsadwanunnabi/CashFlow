@@ -8,13 +8,16 @@ import TransactionsPage from "@/components/TransactionsPage";
 import AIInsights from "@/components/AIInsights";
 import SettingsPage from "@/components/SettingsPage";
 import SmsParser from "@/components/SmsParser";
+import AuthPage from "@/components/AuthPage";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useApp } from "@/contexts/AppContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Index() {
   const [activeTab, setActiveTab] = useState("overview");
   const { transactions, addTransaction, clearAllData, loadDemoData, totalBalance, monthlySpend, monthlyIncome, burnRate } = useTransactions();
   const { t } = useApp();
+  const { user } = useAuth();
 
   const pageTitle: Record<string, string> = {
     overview: t("overview"),
@@ -24,12 +27,22 @@ export default function Index() {
     sms: t("smsParsing"),
     ai: t("aiInsights"),
     settings: t("settings"),
+    login: t("login"),
   };
+
+  // Show auth page when login tab selected and not logged in
+  if (activeTab === "login" && !user) {
+    return <AuthPage />;
+  }
+
+  // If user just logged in from auth page, redirect to overview
+  if (activeTab === "login" && user) {
+    setActiveTab("overview");
+  }
 
   return (
     <div className="flex min-h-screen bg-background">
       <AppSidebar activeTab={activeTab} onTabChange={setActiveTab} />
-      {/* Main content — offset for sidebar on desktop, top bar on mobile */}
       <main className="flex-1 pt-14 md:pt-0 md:ml-60 p-4 sm:p-6 lg:p-8">
         <h1 className="mb-6 text-2xl font-bold text-foreground">{pageTitle[activeTab]}</h1>
 
@@ -52,10 +65,7 @@ export default function Index() {
         )}
 
         {activeTab === "banks" && (
-          <div className="grid gap-6 lg:grid-cols-2">
-            <BankBreakdown transactions={transactions} />
-            <SpendingChart transactions={transactions} />
-          </div>
+          <BankBreakdown transactions={transactions} />
         )}
 
         {activeTab === "categories" && (

@@ -1,8 +1,8 @@
-import React, { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import type { Language, TranslationKey } from "@/lib/translations";
 import { translations } from "@/lib/translations";
 
-export type ThemeName = "midnight" | "emerald" | "amethyst";
+export type ThemeName = "midnight" | "emerald" | "amethyst" | "rosegold" | "charcoal" | "ocean";
 
 interface AppContextType {
   theme: ThemeName;

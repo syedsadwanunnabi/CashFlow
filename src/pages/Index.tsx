@@ -1,12 +1,12 @@
 import { useState } from "react";
 import AppSidebar from "@/components/AppSidebar";
-import PulseDashboard from "@/components/PulseDashboard";
+import WalletOverview from "@/components/WalletOverview";
 import SpendingChart from "@/components/SpendingChart";
 import BankBreakdown from "@/components/BankBreakdown";
 import CategoryBreakdown from "@/components/CategoryBreakdown";
-import TransactionList from "@/components/TransactionList";
+import TransactionsPage from "@/components/TransactionsPage";
 import AIInsights from "@/components/AIInsights";
-import AddTransaction from "@/components/AddTransaction";
+import SettingsPage from "@/components/SettingsPage";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useApp } from "@/contexts/AppContext";
 
@@ -15,63 +15,57 @@ export default function Index() {
   const { transactions, addTransaction, totalBalance, monthlySpend, monthlyIncome, burnRate } = useTransactions();
   const { t } = useApp();
 
+  const pageTitle: Record<string, string> = {
+    overview: t("overview"),
+    transactions: t("transactions"),
+    banks: t("bankAccounts"),
+    categories: t("categories"),
+    ai: t("aiInsights"),
+    settings: t("settings"),
+  };
+
   return (
     <div className="flex min-h-screen bg-background">
       <AppSidebar activeTab={activeTab} onTabChange={setActiveTab} />
-      <main className="ml-64 flex-1 p-6 lg:p-8">
-        {/* Top bar */}
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-foreground">
-            {activeTab === "overview" && t("overview")}
-            {activeTab === "banks" && t("bankAccounts")}
-            {activeTab === "categories" && t("categories")}
-            {activeTab === "ai" && t("aiInsights")}
-          </h1>
-          <AddTransaction onAdd={addTransaction} />
-        </div>
+      <main className="ml-60 flex-1 p-6 lg:p-8">
+        <h1 className="mb-6 text-2xl font-bold text-foreground">{pageTitle[activeTab]}</h1>
 
-        {/* Overview Tab */}
         {activeTab === "overview" && (
           <div className="space-y-6">
-            <PulseDashboard
+            <WalletOverview
+              transactions={transactions}
               totalBalance={totalBalance}
-              burnRate={burnRate}
               monthlySpend={monthlySpend}
-              monthlyIncome={monthlyIncome}
             />
             <div className="grid gap-6 lg:grid-cols-2">
               <SpendingChart transactions={transactions} />
-              <BankBreakdown transactions={transactions} />
-            </div>
-            <div className="grid gap-6 lg:grid-cols-2">
               <CategoryBreakdown transactions={transactions} />
-              <TransactionList transactions={transactions} />
             </div>
           </div>
         )}
 
-        {/* Banks Tab */}
+        {activeTab === "transactions" && (
+          <TransactionsPage transactions={transactions} onAdd={addTransaction} />
+        )}
+
         {activeTab === "banks" && (
           <div className="grid gap-6 lg:grid-cols-2">
             <BankBreakdown transactions={transactions} />
-            <TransactionList transactions={transactions} />
+            <SpendingChart transactions={transactions} />
           </div>
         )}
 
-        {/* Categories Tab */}
         {activeTab === "categories" && (
-          <div className="grid gap-6 lg:grid-cols-2">
-            <CategoryBreakdown transactions={transactions} />
-            <TransactionList transactions={transactions} />
-          </div>
+          <CategoryBreakdown transactions={transactions} />
         )}
 
-        {/* AI Tab */}
         {activeTab === "ai" && (
           <div className="max-w-2xl">
             <AIInsights transactions={transactions} monthlySpend={monthlySpend} burnRate={burnRate} />
           </div>
         )}
+
+        {activeTab === "settings" && <SettingsPage />}
       </main>
     </div>
   );

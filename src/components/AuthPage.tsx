@@ -3,6 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useApp } from "@/contexts/AppContext";
 import { motion } from "framer-motion";
 import { Mail, Lock, User, LogIn, UserPlus, AlertCircle } from "lucide-react";
+import logoImg from "@/assets/logo.png";
 
 export default function AuthPage() {
   const { signIn, signUp } = useAuth();

@@ -3,6 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { LayoutDashboard, ArrowLeftRight, Sparkles, Settings, FolderOpen, Landmark, MessageSquareText, Menu, X, LogIn, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
+import logoImg from "@/assets/logo.png";
 
 interface SidebarProps {
   activeTab: string;
@@ -35,9 +36,7 @@ export default function AppSidebar({ activeTab, onTabChange }: SidebarProps) {
     <>
       <div className="flex items-center justify-between px-5 py-6">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary">
-            <span className="text-xl font-bold text-primary-foreground leading-none">৳</span>
-          </div>
+          <img src={logoImg} alt="CashFlow" className="h-9 w-9 rounded-xl object-contain" />
           <span className="text-lg font-bold text-foreground tracking-tight">{t("appName")}</span>
         </div>
         <button onClick={() => setMobileOpen(false)} className="md:hidden text-muted-foreground hover:text-foreground">
@@ -95,9 +94,7 @@ export default function AppSidebar({ activeTab, onTabChange }: SidebarProps) {
           <Menu className="h-5 w-5" />
         </button>
         <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary">
-            <span className="text-sm font-bold text-primary-foreground leading-none">৳</span>
-          </div>
+          <img src={logoImg} alt="CashFlow" className="h-7 w-7 rounded-lg object-contain" />
           <span className="text-sm font-bold text-foreground">{t("appName")}</span>
         </div>
       </div>

@@ -3,6 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { LayoutDashboard, ArrowLeftRight, Sparkles, Settings, FolderOpen, Landmark, MessageSquareText, Menu, X, LogIn, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
+import logoImg from "@/assets/logo.png";
 
 interface SidebarProps {
   activeTab: string;

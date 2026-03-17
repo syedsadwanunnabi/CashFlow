@@ -35,7 +35,9 @@ export default function AppSidebar({ activeTab, onTabChange }: SidebarProps) {
     <>
       <div className="flex items-center justify-between px-5 py-6">
         <div className="flex items-center gap-2.5">
-          <img src={logoImg} alt="CashFlow" className="h-9 w-9 rounded-xl object-contain" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary">
+            <span className="text-xl font-bold text-primary-foreground leading-none">৳</span>
+          </div>
           <span className="text-lg font-bold text-foreground tracking-tight">{t("appName")}</span>
         </div>
         <button onClick={() => setMobileOpen(false)} className="md:hidden text-muted-foreground hover:text-foreground">

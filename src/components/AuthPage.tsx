@@ -61,9 +61,7 @@ export default function AuthPage() {
       >
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary mb-3">
-            <span className="text-2xl font-bold text-primary-foreground leading-none">৳</span>
-          </div>
+          <img src={logoImg} alt="CashFlow" className="h-14 w-14 rounded-2xl object-contain mb-3" />
           <h1 className="text-xl font-bold text-foreground">{t("appName")}</h1>
           <p className="text-sm text-muted-foreground mt-1">{t("authSubtitle")}</p>
         </div>
